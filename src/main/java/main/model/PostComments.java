@@ -18,15 +18,18 @@ public class PostComments {
   @GeneratedValue(strategy = GenerationType.AUTO)
   private int id;
 
-  @Column(name = "parent_id")
+  @Column(name = "parent_id", columnDefinition = "INT")
   private int parentId;
 
-  @Column(name = "user_id")
+  @Column(name = "user_id", nullable = false, columnDefinition = "INT")
   private int userId;
 
-  @Column(name = "post_id")
+  @Column(name = "post_id", nullable = false, columnDefinition = "INT")
   private int postId;
 
+  @Column(nullable = false, columnDefinition = "DATETIME")
   private Date time;
+
+  @Column(nullable = false, columnDefinition = "TEXT")
   private String text;
 }

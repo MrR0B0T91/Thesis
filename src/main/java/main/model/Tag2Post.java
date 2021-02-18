@@ -15,9 +15,9 @@ public class Tag2Post {
   @GeneratedValue(strategy = GenerationType.AUTO)
   private int id;
 
-  @Column(name = "post_id")
+  @Column(name = "post_id", nullable = false, columnDefinition = "INT")
   private int postId;
 
-  @Column(name = "tag_id")
+  @Column(name = "tag_id", nullable = false, columnDefinition = "INT")
   private int tagId;
 }

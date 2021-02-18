@@ -2,6 +2,7 @@ package main.model;
 
 import java.util.List;
 import javax.persistence.CascadeType;
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
@@ -20,6 +21,7 @@ public class Tags {
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   private int id;
 
+  @Column(nullable = false, columnDefinition = "VARCHAR(255)")
   private String name;
 
   @ManyToMany(mappedBy = "tagsList", fetch = FetchType.LAZY)

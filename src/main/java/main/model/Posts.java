@@ -26,25 +26,30 @@ public class Posts {
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   private int id;
 
-  @Column(name = "is_active")
+  @Column(name = "is_active", nullable = false, columnDefinition = "TINYINT")
   private boolean isActive;
 
   @Enumerated(EnumType.STRING)
   @Column(columnDefinition = "enum")
   private ModerationStatus moderationStatus = ModerationStatus.NEW;
 
-  @Column(name = "moderator_id")
+  @Column(name = "moderator_id", columnDefinition = "INT")
   private boolean moderatorId;
 
   @ManyToOne
   @JoinColumn(name = "user_id", nullable = false)
   private Users user;
 
+  @Column(nullable = false, columnDefinition = "DATETIME")
   private Date time;
+
+  @Column(nullable = false, columnDefinition = "VARCHAR(255)")
   private String title;
+
+  @Column(nullable = false, columnDefinition = "TEXT")
   private String text;
 
-  @Column(name = "view_count")
+  @Column(name = "view_count", nullable = false, columnDefinition = "INT")
   private int viewCount;
 
   @ManyToMany(cascade = CascadeType.ALL)

@@ -1,5 +1,6 @@
 package main.model;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -15,8 +16,14 @@ public class GlobalSettings {
   @Id
   @GeneratedValue(strategy = GenerationType.AUTO)
   private int id;
+
+  @Column(nullable = false, columnDefinition = "VARCHAR(255)")
   private String code;
+
+  @Column(nullable = false, columnDefinition = "VARCHAR(255)")
   private String name;
+
+  @Column(nullable = false, columnDefinition = "VARCHAR(255)")
   private String value;
   /*
    * MULTIUSER_MODE
