@@ -11,10 +11,12 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.ManyToMany;
 import javax.persistence.OneToMany;
+import javax.persistence.Table;
 import lombok.Data;
 
 @Data
 @Entity
+@Table(name = "users")
 public class Users {
 
   @Id

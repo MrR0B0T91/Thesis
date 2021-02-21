@@ -15,11 +15,13 @@ import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
+import javax.persistence.Table;
 import lombok.Data;
 import org.hibernate.annotations.Cascade;
 
 @Data
 @Entity
+@Table(name = "posts")
 public class Posts {
 
   @Id

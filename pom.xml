@@ -10,6 +10,8 @@
 
   <properties>
     <java.version>11</java.version>
+    <timestamp>${maven.build.timestamp}</timestamp>
+    <maven.build.timestamp.format>yyyyMMdd-HHmmssSSS</maven.build.timestamp.format>
   </properties>
 
   <build>
@@ -19,7 +21,36 @@
         <artifactId>spring-boot-maven-plugin</artifactId>
         <version>2.2.4.RELEASE</version>
       </plugin>
+      <plugin>
+        <groupId>org.liquibase</groupId>
+        <artifactId>liquibase-maven-plugin</artifactId>
+        <version>4.3.1</version>
+        <configuration>
+          <propertyFile>${project.basedir}/src/main/resources/liquibase.properties</propertyFile>
+          <systemProperties>
+            <user.name>dima_pak</user.name>
+          </systemProperties>
+          <logging>info</logging>
+        </configuration>
+      </plugin>
     </plugins>
+
+    <resources>
+      <resource>
+        <directory>src/main/resources</directory>
+        <filtering>true</filtering>
+        <includes>
+          <include>*.properties</include>
+        </includes>
+      </resource>
+      <resource>
+        <directory>src/main/resources</directory>
+        <filtering>false</filtering>
+        <includes>
+          <include>**/*.*</include>
+        </includes>
+      </resource>
+    </resources>
   </build>
 
   <parent>
@@ -49,10 +80,21 @@
       <artifactId>spring-boot-starter-thymeleaf</artifactId>
       <version>2.2.4.RELEASE</version>
     </dependency>
+
     <dependency>
       <groupId>org.projectlombok</groupId>
       <artifactId>lombok</artifactId>
       <version>1.18.12</version>
+    </dependency>
+
+    <dependency>
+      <groupId>org.liquibase</groupId>
+      <artifactId>liquibase-core</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.liquibase.ext</groupId>
+      <artifactId>liquibase-hibernate5</artifactId>
+      <version>3.6</version>
     </dependency>
   </dependencies>
 
