@@ -3,4 +3,4 @@ spring.datasource.username: root
 spring.datasource.password: testtest
 spring.jpa.hibernate.ddl-auto: validate
 
-spring.liquibase.change-log: classpath:db/changelog/db.changelog-master.xml
+spring.liquibase.change-log: classpath:db/changelog/db.changelog-master-1.0.yaml
