@@ -4,3 +4,10 @@ spring.datasource.password: testtest
 spring.jpa.hibernate.ddl-auto: validate
 
 spring.liquibase.change-log: classpath:db/changelog/db.changelog-master-1.0.yaml
+
+blog.title: MoviePub
+blog.subtitle: Отзывы о фильмах
+blog.phone: +7 903 555-55-55
+blog.email: movie@mail.ru
+blog.copyright: Квентин Тарантино
+blog.copyrightFrom: 1991

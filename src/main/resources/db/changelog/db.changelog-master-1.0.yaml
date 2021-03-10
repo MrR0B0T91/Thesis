@@ -453,4 +453,3 @@ databaseChangeLog:
         referencedColumnNames: id
         referencedTableName: posts
         validate: true
-
