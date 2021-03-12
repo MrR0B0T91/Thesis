@@ -1,7 +1,9 @@
 package main.controller;
 
 import main.api.response.PostResponse;
+import main.model.Posts;
 import main.service.PostService;
+import org.springframework.data.domain.Page;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;

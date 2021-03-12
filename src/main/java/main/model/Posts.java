@@ -17,9 +17,10 @@ import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Data
-@Builder
+@NoArgsConstructor
 @Entity
 @Table(name = "posts")
 public class Posts {
@@ -36,7 +37,7 @@ public class Posts {
   private ModerationStatus moderationStatus = ModerationStatus.NEW;
 
   @Column(name = "moderator_id", columnDefinition = "INT")
-  private boolean moderatorId;
+  private Integer moderatorId;
 
   @ManyToOne
   @JoinColumn(name = "user_id", nullable = false)
@@ -74,4 +75,5 @@ public class Posts {
       inverseJoinColumns = {@JoinColumn(name = "tag_id")}
   )
   private List<Tags> tagsList;
+
 }

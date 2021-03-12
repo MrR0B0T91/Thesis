@@ -13,7 +13,7 @@ public class CheckService {
   private final PostRepository postRepository;
 
   CheckResponse checkResponse = new CheckResponse();
-//  Users user = new Users();
+  Users user = new Users();
 
   public CheckService(UserRepository userRepository,
       PostRepository postRepository) {
@@ -23,17 +23,15 @@ public class CheckService {
 
   public CheckResponse getResult() {
 
-    Users buildUser = Users.builder()
-        .id(1)
-        .name("Max")
-        .photo("avatar")
-        .email("email@.com")
-        .isModerator(true)
-        .build();
+    user.setId(1);
+    user.setName("Jack");
+    user.setPhoto("avatar");
+    user.setEmail("email@.com");
+    user.setModerator(true);
 
-    if (buildUser.isModerator()) {
+    if (user.isModerator()) {
       checkResponse.setResult(true);
-      checkResponse.setUser(buildUser);
+      checkResponse.setUser(user);
       checkResponse.setModeration(true);
       checkResponse.setModerationCount(56);
       checkResponse.setSettings(true);
