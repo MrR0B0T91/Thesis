@@ -3,7 +3,6 @@ package main.service;
 import java.util.ArrayList;
 import java.util.List;
 import main.api.response.PostResponse;
-import main.model.ModerationStatus;
 import main.model.Posts;
 import main.model.repositories.PostCommentRepository;
 import main.model.repositories.PostRepository;
@@ -49,7 +48,7 @@ public class PostService {
 
     Pageable pagingAndSort = PageRequest.of(offset, limit, sort.descending());
 
-    Page<Posts> pagePosts = postRepository.findAll(ModerationStatus.ACCEPTED, pagingAndSort);
+    Page<Posts> pagePosts = postRepository.findAll(pagingAndSort);
 
     postsList = pagePosts.getContent();
 
