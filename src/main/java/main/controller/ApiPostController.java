@@ -18,7 +18,7 @@ public class ApiPostController {
     this.postService = postService;
   }
 
-  @GetMapping("/")
+  @GetMapping
   @ResponseBody
   private PostResponse posts(@RequestParam(value = "offset", defaultValue = "0") int offset,
       @RequestParam(value = "limit", defaultValue = "10") int limit,
