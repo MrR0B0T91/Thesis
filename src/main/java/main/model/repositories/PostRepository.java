@@ -1,5 +1,7 @@
 package main.model.repositories;
 
+import java.util.List;
+import main.model.ModerationStatus;
 import main.model.Posts;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -9,6 +11,8 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface PostRepository extends JpaRepository<Posts, Integer> {
 
-  Page<Posts> findAll(Pageable pageable);
+  List<Posts> findAllByModerationStatus(ModerationStatus moderationStatus);
+
+  Page<Posts> findAllByModerationStatusAndIsActive(ModerationStatus moderationStatus, boolean isActive, Pageable pageable);
 
 }

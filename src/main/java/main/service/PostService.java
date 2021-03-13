@@ -1,8 +1,8 @@
 package main.service;
 
-import java.util.ArrayList;
 import java.util.List;
 import main.api.response.PostResponse;
+import main.model.ModerationStatus;
 import main.model.Posts;
 import main.model.repositories.PostCommentRepository;
 import main.model.repositories.PostRepository;
@@ -20,6 +20,7 @@ public class PostService {
   private final PostVoteRepository postVoteRepository;
   private final PostCommentRepository postCommentRepository;
   private Sort sort;
+  private final boolean isActive = true;
 
   public PostService(PostRepository postRepository,
       PostVoteRepository postVoteRepository,
@@ -44,13 +45,11 @@ public class PostService {
       sort = Sort.by("time").ascending();
     }
 
-    List<Posts> postsList = new ArrayList<>();
-
     Pageable pagingAndSort = PageRequest.of(offset, limit, sort.descending());
 
-    Page<Posts> pagePosts = postRepository.findAll(pagingAndSort);
+    Page<Posts> pagePosts = postRepository.findAllByModerationStatusAndIsActive(ModerationStatus.ACCEPTED, isActive, pagingAndSort);
 
-    postsList = pagePosts.getContent();
+    List<Posts> postsList = pagePosts.getContent();
 
     PostResponse postResponse = new PostResponse();
 

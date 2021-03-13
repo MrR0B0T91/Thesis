@@ -2,9 +2,13 @@ package main.controller;
 
 import main.api.response.InitResponse;
 import main.api.response.SettingsResponse;
+import main.api.response.TagResponse;
 import main.service.SettingsService;
+import main.service.TagService;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
@@ -13,12 +17,14 @@ public class ApiGeneralController {
 
   private final InitResponse initResponse;
   private final SettingsService settingsService;
+  private final TagService tagService;
 
 
   public ApiGeneralController(InitResponse initResponse,
-      SettingsService settingsService) {
+      SettingsService settingsService, TagService tagService) {
     this.initResponse = initResponse;
     this.settingsService = settingsService;
+    this.tagService = tagService;
   }
 
   @GetMapping("/init")
@@ -29,5 +35,11 @@ public class ApiGeneralController {
   @GetMapping("/settings")
   private SettingsResponse settings() {
     return settingsService.getGlobalSettings();
+  }
+
+  @GetMapping("/tag")
+  @ResponseBody
+  private TagResponse tags(@RequestParam(value = "query", defaultValue = "FirstReview") String name){
+    return tagService.getTags(name);
   }
 }

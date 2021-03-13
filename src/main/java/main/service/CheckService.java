@@ -1,6 +1,9 @@
 package main.service;
 
+import java.util.List;
 import main.api.response.CheckResponse;
+import main.model.ModerationStatus;
+import main.model.Posts;
 import main.model.Users;
 import main.model.repositories.PostRepository;
 import main.model.repositories.UserRepository;
@@ -11,6 +14,7 @@ public class CheckService {
 
   private final UserRepository userRepository;
   private final PostRepository postRepository;
+  private int moderationCount;
 
   CheckResponse checkResponse = new CheckResponse();
   Users user = new Users();
@@ -29,11 +33,14 @@ public class CheckService {
     user.setEmail("email@.com");
     user.setModerator(true);
 
+    List<Posts> newPosts = postRepository.findAllByModerationStatus(ModerationStatus.NEW);
+    moderationCount = newPosts.size();
+
     if (user.isModerator()) {
       checkResponse.setResult(true);
       checkResponse.setUser(user);
       checkResponse.setModeration(true);
-      checkResponse.setModerationCount(56);
+      checkResponse.setModerationCount(moderationCount);
       checkResponse.setSettings(true);
     } else {
       checkResponse.setResult(false);
