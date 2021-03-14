@@ -1,6 +1,6 @@
 package main.service;
 
-import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import main.api.response.TagResponse;
@@ -17,22 +17,28 @@ public class TagService {
     this.tagRepository = tagRepository;
   }
 
-  public TagResponse getTags(String name){
+  public TagResponse getTags(String name) {
 
     HashMap<String, Double> tagHash = new HashMap<>();
 
     List<Tags> namedTag = tagRepository.findAllByName(name);
-    Iterable<Tags> tagsIterable = tagRepository.findAll();
-    List<Tags> allTags = new ArrayList<>();
-    for (Tags tag : tagsIterable){
-      allTags.add(tag);
+    List<Tags> tagsList = tagRepository.findAll();
+    HashMap<Tags, Integer> namedTags = new HashMap<>();
+
+    for (Tags tagName : tagsList) {
+      namedTags.put(tagName, Collections.frequency(tagsList, tagName));
     }
 
-    double nameTagCount = namedTag.size();
-    double allTagsCount = allTags.size();
-    double weight = nameTagCount / allTagsCount;
+    int maxValue = Collections.max(namedTags.values());
 
-    tagHash.put(name, weight);
+    double tag = namedTag.size();
+    double weights = tagsList.size();
+    double dWeightTag = tag / weights;
+    double dWeightMAx = maxValue / weights;
+    double k = 1 / dWeightMAx;
+    double weightTag = dWeightTag * k;
+
+    tagHash.put(name, weightTag);
 
     TagResponse tagResponse = new TagResponse();
 
