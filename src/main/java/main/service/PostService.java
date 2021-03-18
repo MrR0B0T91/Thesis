@@ -1,6 +1,5 @@
 package main.service;
 
-import java.util.List;
 import main.api.response.PostResponse;
 import main.model.ModerationStatus;
 import main.model.Posts;
@@ -13,6 +12,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 public class PostService {
 
@@ -21,8 +22,10 @@ public class PostService {
   private final PostCommentRepository postCommentRepository;
   private Sort sort;
   private final boolean isActive = true;
+  private List<Posts> postsList;
 
-  public PostService(PostRepository postRepository,
+  public PostService(
+      PostRepository postRepository,
       PostVoteRepository postVoteRepository,
       PostCommentRepository postCommentRepository) {
     this.postRepository = postRepository;
@@ -34,22 +37,30 @@ public class PostService {
 
     if (mode.equals("recent")) {
       sort = Sort.by("time").descending();
+      Pageable pagingAndSort = PageRequest.of(offset, limit, sort);
+      Page<Posts> recentPage =
+          postRepository.findAllByModerationStatusAndIsActive(
+              ModerationStatus.ACCEPTED, isActive, pagingAndSort);
+      postsList = recentPage.getContent();
     }
-    if (mode.equals("popular")){
-      sort = Sort.by("post_comments").descending();
+    if (mode.equals("popular")) {
+      sort = Sort.by("count").descending();
+      Pageable pagingAndSort = PageRequest.of(offset, limit, sort);
+      Page<Posts> popularPage =
+          postRepository.findAllLikedPosts(ModerationStatus.ACCEPTED, isActive, pagingAndSort);
+      postsList = popularPage.getContent();
     }
-    if (mode.equals("best")){
+    if (mode.equals("best")) {
       sort = Sort.by("post_votes").descending();
     }
-    if (mode.equals("early")){
+    if (mode.equals("early")) {
       sort = Sort.by("time").ascending();
+      Pageable pagingAndSort = PageRequest.of(offset, limit, sort);
+      Page<Posts> earlyPage =
+          postRepository.findAllByModerationStatusAndIsActive(
+              ModerationStatus.ACCEPTED, isActive, pagingAndSort);
+      postsList = earlyPage.getContent();
     }
-
-    Pageable pagingAndSort = PageRequest.of(offset, limit, sort.descending());
-
-    Page<Posts> pagePosts = postRepository.findAllByModerationStatusAndIsActive(ModerationStatus.ACCEPTED, isActive, pagingAndSort);
-
-    List<Posts> postsList = pagePosts.getContent();
 
     PostResponse postResponse = new PostResponse();
 
