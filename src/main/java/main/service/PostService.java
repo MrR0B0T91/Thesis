@@ -44,14 +44,14 @@ public class PostService {
       postsList = recentPage.getContent();
     }
     if (mode.equals("popular")) {
-      sort = Sort.by("count").descending();
-      Pageable pagingAndSort = PageRequest.of(offset, limit, sort);
-      Page<Posts> popularPage =
-          postRepository.findAllLikedPosts(ModerationStatus.ACCEPTED, isActive, pagingAndSort);
+      Pageable pagingPopular = PageRequest.of(offset, limit);
+      Page<Posts> popularPage = postRepository.findPostsOrderByLikes(pagingPopular);
       postsList = popularPage.getContent();
     }
     if (mode.equals("best")) {
-      sort = Sort.by("post_votes").descending();
+      Pageable pagingBest = PageRequest.of(offset, limit);
+      Page<Posts> bestPage = postRepository.findPostsOrderByComments(pagingBest);
+      postsList = bestPage.getContent();
     }
     if (mode.equals("early")) {
       sort = Sort.by("time").ascending();

@@ -19,9 +19,19 @@ public interface PostRepository extends JpaRepository<Posts, Integer> {
       ModerationStatus moderationStatus, boolean isActive, Pageable pageable);
 
   @Query(
-      value =
-          "select count(value) as count from posts join post_votes on posts.id = post_votes.post_id where value = 1 group by posts.id",
-      nativeQuery = true)
-  Page<Posts> findAllLikedPosts(
-      ModerationStatus moderationStatus, boolean isActive, Pageable pageable);
+      "SELECT p "
+          + "FROM Posts p "
+          + "LEFT JOIN PostVotes pv1 ON p.id = pv1.postId AND pv1.value = 1 "
+          + "WHERE p.isActive = 1 AND p.moderationStatus = 'ACCEPTED' AND p.time <= CURRENT_DATE() "
+          + "GROUP BY p.id "
+          + "ORDER BY COUNT(pv1) DESC")
+  Page<Posts> findPostsOrderByLikes(Pageable pageable);
+
+  @Query(
+      "SELECT p "
+          + "FROM Posts p "
+          + "LEFT JOIN PostComments pc ON p.id = pc.postId "
+          + "GROUP BY p.id "
+          + "ORDER BY COUNT(pc) ASC")
+  Page<Posts> findPostsOrderByComments(Pageable pageable);
 }
