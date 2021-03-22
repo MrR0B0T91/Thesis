@@ -39,7 +39,7 @@ public class ApiGeneralController {
   @GetMapping("/tag")
   @ResponseBody
   private TagResponse tags(
-      @RequestParam(value = "query", defaultValue = "FirstReview") String name) {
+      @RequestParam(value = "query", defaultValue = "") String name) {
     return tagService.getTags(name);
   }
 }
