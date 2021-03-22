@@ -19,9 +19,8 @@ public class ApiGeneralController {
   private final SettingsService settingsService;
   private final TagService tagService;
 
-
-  public ApiGeneralController(InitResponse initResponse,
-      SettingsService settingsService, TagService tagService) {
+  public ApiGeneralController(
+      InitResponse initResponse, SettingsService settingsService, TagService tagService) {
     this.initResponse = initResponse;
     this.settingsService = settingsService;
     this.tagService = tagService;
@@ -39,7 +38,8 @@ public class ApiGeneralController {
 
   @GetMapping("/tag")
   @ResponseBody
-  private TagResponse tags(@RequestParam(value = "query", defaultValue = "FirstReview") String name){
+  private TagResponse tags(
+      @RequestParam(value = "query", defaultValue = "") String name) {
     return tagService.getTags(name);
   }
 }
