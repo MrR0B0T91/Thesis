@@ -1,10 +1,14 @@
 package main.service;
 
 import main.api.response.PostResponse;
+import main.appConfiguration.MapperUtil;
 import main.converter.PostConverter;
 import main.dto.PostDto;
+import main.dto.UserDto;
 import main.model.Posts;
+import main.model.Users;
 import main.model.repositories.PostRepository;
+import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -18,17 +22,18 @@ import java.util.List;
 public class PostService {
 
   private final PostRepository postRepository;
-  private Sort sort;
+  private final ModelMapper modelMapper;
   private final PostConverter postConverter;
 
+  private Sort sort;
   private List<Posts> postsList;
   private List<PostDto> postDtoList;
 
   private PostResponse postResponse = new PostResponse();
 
-  public PostService(PostRepository postRepository, PostConverter postConverter) {
+  public PostService(PostRepository postRepository, ModelMapper modelMapper, PostConverter postConverter) {
     this.postRepository = postRepository;
-
+    this.modelMapper = modelMapper;
     this.postConverter = postConverter;
   }
 
@@ -39,6 +44,8 @@ public class PostService {
       Pageable pagingRecent = PageRequest.of(offset, limit, sort);
       Page<Posts> recentPage = postRepository.findAll(pagingRecent);
       postsList = recentPage.getContent();
+      postDtoList = MapperUtil.convertList(postRepository.findAll(), this::convertToPostDto);
+
     }
     if (mode.equals("popular")) {
       sort = JpaSort.unsafe(Sort.Direction.DESC,"COUNT(pv1)");
@@ -60,8 +67,17 @@ public class PostService {
     }
 
     postResponse.setCount(postsList.size());
-    postResponse.setPosts(postsList);
+    postResponse.setPosts(postDtoList);
 
     return postResponse;
+  }
+
+  private PostDto convertToPostDto(Posts post) {
+    PostDto postDto = modelMapper.map(post, PostDto.class);
+    postDto.setUserDto(convertToUserDto(post.getUser()));
+    return postDto;
+  }
+  private UserDto convertToUserDto(Users user) {
+    return modelMapper.map(user, UserDto.class);
   }
 }
