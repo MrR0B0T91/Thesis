@@ -1,22 +1,11 @@
 package main.model;
 
-import java.util.Date;
-import java.util.List;
-import javax.persistence.CascadeType;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.JoinTable;
-import javax.persistence.ManyToMany;
-import javax.persistence.ManyToOne;
-import javax.persistence.Table;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+
+import javax.persistence.*;
+import java.util.Date;
+import java.util.List;
 
 @Data
 @NoArgsConstructor
@@ -55,24 +44,23 @@ public class Posts {
   private int viewCount;
 
   @ManyToMany(cascade = CascadeType.ALL)
-  @JoinTable(name = "post_votes",
+  @JoinTable(
+      name = "post_votes",
       joinColumns = {@JoinColumn(name = "post_id")},
-      inverseJoinColumns = {@JoinColumn(name = "user_id")}
-  )
-  private List<Users> usersVoteList;
+      inverseJoinColumns = {@JoinColumn(name = "user_id")})
+  private List<PostVotes> postVoteList;
 
   @ManyToMany(cascade = CascadeType.ALL)
-  @JoinTable(name = "post_comments",
+  @JoinTable(
+      name = "post_comments",
       joinColumns = {@JoinColumn(name = "post_id")},
-      inverseJoinColumns = {@JoinColumn(name = "user_id")}
-  )
+      inverseJoinColumns = {@JoinColumn(name = "user_id")})
   private List<PostComments> postCommentsList;
 
   @ManyToMany(cascade = CascadeType.ALL)
-  @JoinTable(name = "tag2post",
+  @JoinTable(
+      name = "tag2post",
       joinColumns = {@JoinColumn(name = "post_id")},
-      inverseJoinColumns = {@JoinColumn(name = "tag_id")}
-  )
+      inverseJoinColumns = {@JoinColumn(name = "tag_id")})
   private List<Tags> tagsList;
-
 }

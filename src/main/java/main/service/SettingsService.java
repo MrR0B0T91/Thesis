@@ -25,8 +25,6 @@ public class SettingsService {
     String multiValue = multiSettings.getValue();
     if (multiValue.equals("YES")) {
       settingsResponse.setMultiuserMode(true);
-    } else {
-      settingsResponse.setMultiuserMode(false);
     }
 
     Optional<GlobalSettings> optionalPostPremodSettings =
@@ -35,8 +33,6 @@ public class SettingsService {
     String postPremod = postPremoderation.getValue();
     if (postPremod.equals("YES")) {
       settingsResponse.setPostPremoderation(true);
-    } else {
-      settingsResponse.setPostPremoderation(false);
     }
 
     Optional<GlobalSettings> optionalStatisticsSettings =
@@ -45,8 +41,6 @@ public class SettingsService {
     String statistic = statistics.getValue();
     if (statistic.equals("YES")) {
       settingsResponse.setStatisticsIsPublic(true);
-    } else {
-      settingsResponse.setStatisticsIsPublic(false);
     }
     return settingsResponse;
   }
