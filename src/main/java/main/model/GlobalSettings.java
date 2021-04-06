@@ -25,9 +25,5 @@ public class GlobalSettings {
 
   @Column(nullable = false, columnDefinition = "VARCHAR(255)")
   private String value;
-  /*
-   * MULTIUSER_MODE
-   * POST_PREMODERATION
-   * STATISTICS_IS_PUBLIC
-   */
+
 }

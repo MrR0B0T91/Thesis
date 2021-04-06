@@ -1003,3 +1003,29 @@ databaseChangeLog:
             dbms: '!h2,  mysql'
             schemaName: globalSettingsTable
             tableName: global_settings
+
+  - changeSet:
+      id: insertPostComment1
+      author: dima_pak
+      changes:
+        - insert:
+            catalogName: thesis
+            columns:
+              - column:
+                  name: id
+                  value: 1
+              - column:
+                  name: post_id
+                  value: 1
+              - column:
+                  name: user_id
+                  value: 1
+              - column:
+                  name: time
+                  value: '2020-10-18 10:43:32'
+              - column:
+                  name: text
+                  value: "I love this movie"
+            dbms: '!h2,  mysql'
+            schemaName: postCommemtsTable
+            tableName: post_comments

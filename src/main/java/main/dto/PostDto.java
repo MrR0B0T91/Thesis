@@ -3,13 +3,13 @@ package main.dto;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 
-import java.util.Date;
-
 @Data
 public class PostDto {
 
   private int id;
-  private Date time;
+
+  @JsonProperty("timestamp")
+  private long timeStamp;
 
   @JsonProperty("user")
   private UserDto userDto;

@@ -1,5 +1,6 @@
 package main.service;
 
+import java.util.Date;
 import main.api.response.PostResponse;
 import main.dto.PostDto;
 import main.dto.UserDto;
@@ -38,7 +39,7 @@ public class PostService {
       List<Posts> postsList = recentPage.getContent();
       List<PostDto> postDtoList =
           postsList.stream().map(this::entityToDto).collect(Collectors.toList());
-      postResponse.setCount(postsList.size());
+      postResponse.setCount(recentPage.getNumberOfElements());
       postResponse.setPosts(postDtoList);
     }
     if (mode.equals("popular")) {
@@ -47,7 +48,7 @@ public class PostService {
       List<Posts> postsList = popularPage.getContent();
       List<PostDto> postDtoList =
           postsList.stream().map(this::entityToDto).collect(Collectors.toList());
-      postResponse.setCount(postsList.size());
+      postResponse.setCount(popularPage.getNumberOfElements());
       postResponse.setPosts(postDtoList);
     }
     if (mode.equals("best")) {
@@ -56,7 +57,7 @@ public class PostService {
       List<Posts> postsList = bestPage.getContent();
       List<PostDto> postDtoList =
           postsList.stream().map(this::entityToDto).collect(Collectors.toList());
-      postResponse.setCount(postsList.size());
+      postResponse.setCount(bestPage.getNumberOfElements());
       postResponse.setPosts(postDtoList);
     }
     if (mode.equals("early")) {
@@ -64,7 +65,7 @@ public class PostService {
       Pageable pagingEarly = PageRequest.of(offset, limit, sort);
       Page<Posts> earlyPage = postRepository.findAll(pagingEarly);
       List<Posts> postsList = earlyPage.getContent();
-      postResponse.setCount(postsList.size());
+      postResponse.setCount(earlyPage.getNumberOfElements());
       List<PostDto> postDtoList =
           postsList.stream().map(this::entityToDto).collect(Collectors.toList());
       postResponse.setPosts(postDtoList);
@@ -98,8 +99,11 @@ public class PostService {
 
     int countComments = postCommentsList.size();
 
+    Date date = post.getTime();
+    long unixTime = date.getTime()/1000;
+
     postDto.setId(post.getId());
-    postDto.setTime(post.getTime());
+    postDto.setTimeStamp(unixTime);
     postDto.setUserDto(userDto);
     postDto.setTitle(post.getTitle());
     postDto.setText(post.getText());

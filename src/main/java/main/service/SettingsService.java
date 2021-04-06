@@ -1,11 +1,10 @@
 package main.service;
 
+import java.util.List;
 import main.api.response.SettingsResponse;
 import main.model.GlobalSettings;
 import main.model.repositories.GlobalSettingsRepository;
 import org.springframework.stereotype.Service;
-
-import java.util.Optional;
 
 @Service
 public class SettingsService {
@@ -17,31 +16,29 @@ public class SettingsService {
   }
 
   public SettingsResponse getGlobalSettings() {
+
     SettingsResponse settingsResponse = new SettingsResponse();
 
-    Optional<GlobalSettings> optionalMultiSettings =
-        globalSettingsRepository.findValueByCode("MULTIUSER_MODE");
-    GlobalSettings multiSettings = optionalMultiSettings.get();
-    String multiValue = multiSettings.getValue();
-    if (multiValue.equals("YES")) {
-      settingsResponse.setMultiuserMode(true);
-    }
+    List<GlobalSettings> allSettings = globalSettingsRepository.findAll();
 
-    Optional<GlobalSettings> optionalPostPremodSettings =
-        globalSettingsRepository.findValueByCode("POST_PREMODERATION");
-    GlobalSettings postPremoderation = optionalPostPremodSettings.get();
-    String postPremod = postPremoderation.getValue();
-    if (postPremod.equals("YES")) {
-      settingsResponse.setPostPremoderation(true);
-    }
+    allSettings.forEach(s -> {
+      if ((s.getCode().equals("MULTIUSER_MODE")) && (s.getValue().equals("YES"))) {
+        settingsResponse.setMultiuserMode(true);
+      }
+    });
 
-    Optional<GlobalSettings> optionalStatisticsSettings =
-        globalSettingsRepository.findValueByCode("STATISTICS_IS_PUBLIC");
-    GlobalSettings statistics = optionalStatisticsSettings.get();
-    String statistic = statistics.getValue();
-    if (statistic.equals("YES")) {
-      settingsResponse.setStatisticsIsPublic(true);
-    }
+    allSettings.forEach(s -> {
+      if ((s.getCode().equals("POST_PREMODERATION")) && (s.getValue().equals("YES"))) {
+        settingsResponse.setPostPremoderation(true);
+      }
+    });
+
+    allSettings.forEach(s -> {
+      if ((s.getCode().equals("STATISTICS_IS_PUBLIC")) && (s.getValue().equals("YES"))) {
+        settingsResponse.setStatisticsIsPublic(true);
+      }
+    });
+
     return settingsResponse;
   }
 }
