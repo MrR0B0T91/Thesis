@@ -16,19 +16,18 @@ public interface PostRepository extends JpaRepository<Posts, Integer> {
   List<Posts> findAllByModerationStatus(ModerationStatus moderationStatus);
 
   @Query(
-      "SELECT p.id, p.time, u.id, u.name, p.title, p.text, COUNT(pv1), COUNT(pv2), COUNT(pc), p.viewCount "
+      "SELECT p "
           + "FROM Posts p "
           + "LEFT JOIN Users u ON u.id = p.user "
           + "LEFT JOIN PostVotes pv1 ON p.id = pv1.postId AND pv1.value = 1 "
           + "LEFT JOIN PostVotes pv2 ON p.id = pv2.postId AND pv2.value = -1 "
           + "LEFT JOIN PostComments pc ON p.id = pc.postId "
           + "WHERE p.isActive = 1 AND p.moderationStatus = 'ACCEPTED' AND p.time <= CURRENT_DATE() "
-          + "GROUP BY p.id "
-          + "ORDER BY p.time DESC")
-  Page<Posts> findPostsOrderByRecent(Pageable pageable);
+          + "GROUP BY p.id")
+  Page<Posts> findAll(Pageable pageable);
 
   @Query(
-      "SELECT p.id, p.time, u.id, u.name, p.title, p.text, COUNT(pv1), COUNT(pv2), COUNT(pc), p.viewCount "
+      "SELECT p "
           + "FROM Posts p "
           + "LEFT JOIN Users u ON u.id = p.user "
           + "LEFT JOIN PostVotes pv1 ON p.id = pv1.postId AND pv1.value = 1 "
@@ -40,7 +39,7 @@ public interface PostRepository extends JpaRepository<Posts, Integer> {
   Page<Posts> findPostsOrderByLikes(Pageable pageable);
 
   @Query(
-      "SELECT p.id, p.time, u.id, u.name, p.title, p.text, COUNT(pv1), COUNT(pv2), COUNT(pc), p.viewCount "
+      "SELECT p "
           + "FROM Posts p "
           + "LEFT JOIN Users u ON u.id = p.user "
           + "LEFT JOIN PostVotes pv1 ON p.id = pv1.postId AND pv1.value = 1 "
@@ -50,16 +49,4 @@ public interface PostRepository extends JpaRepository<Posts, Integer> {
           + "GROUP BY p.id "
           + "ORDER BY COUNT(pc) ASC")
   Page<Posts> findPostsOrderByComments(Pageable pageable);
-
-  @Query(
-      "SELECT p.id, p.time, u.id, u.name, p.title, p.text, COUNT(pv1), COUNT(pv2), COUNT(pc), p.viewCount "
-          + "FROM Posts p "
-          + "LEFT JOIN Users u ON u.id = p.user "
-          + "LEFT JOIN PostVotes pv1 ON p.id = pv1.postId AND pv1.value = 1 "
-          + "LEFT JOIN PostVotes pv2 ON p.id = pv2.postId AND pv2.value = -1 "
-          + "LEFT JOIN PostComments pc ON p.id = pc.postId "
-          + "WHERE p.isActive = 1 AND p.moderationStatus = 'ACCEPTED' AND p.time <= CURRENT_DATE() "
-          + "GROUP BY p.id "
-          + "ORDER BY p.time ASC")
-  Page<Posts> findPostsOrderByEarly(Pageable pageable);
 }

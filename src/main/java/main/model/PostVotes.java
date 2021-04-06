@@ -24,5 +24,5 @@ public class PostVotes {
   private Date time;
 
   @Column(nullable = false, columnDefinition = "TINYINT")
-  private boolean value;
+  private int value;
 }

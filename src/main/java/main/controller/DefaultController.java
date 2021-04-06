@@ -17,4 +17,9 @@ public class DefaultController {
   public String defaultController() {
     return "index";
   }
+
+  @RequestMapping("/**/{path:[^\\\\.]*}")
+  public String goForward(){
+    return "forward:/";
+  }
 }

@@ -1,6 +1,7 @@
 package main.api.response;
 
 import lombok.Data;
+import main.dto.PostDto;
 import main.model.Posts;
 
 import java.util.List;
@@ -9,5 +10,5 @@ import java.util.List;
 public class PostResponse {
 
   private int count;
-  private List<Posts> posts;
+  private List<PostDto> posts;
 }
