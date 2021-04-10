@@ -1,8 +1,10 @@
 package main.controller;
 
+import main.api.response.CalendarResponse;
 import main.api.response.InitResponse;
 import main.api.response.SettingsResponse;
 import main.api.response.TagResponse;
+import main.service.PostService;
 import main.service.SettingsService;
 import main.service.TagService;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -18,12 +20,15 @@ public class ApiGeneralController {
   private final InitResponse initResponse;
   private final SettingsService settingsService;
   private final TagService tagService;
+  private final PostService postService;
 
   public ApiGeneralController(
-      InitResponse initResponse, SettingsService settingsService, TagService tagService) {
+      InitResponse initResponse, SettingsService settingsService, TagService tagService,
+      PostService postService) {
     this.initResponse = initResponse;
     this.settingsService = settingsService;
     this.tagService = tagService;
+    this.postService = postService;
   }
 
   @GetMapping("/init")
@@ -41,5 +46,10 @@ public class ApiGeneralController {
   private TagResponse tags(
       @RequestParam(value = "query", defaultValue = "") String name) {
     return tagService.getTags(name);
+  }
+
+  @GetMapping("/calendar")
+  private CalendarResponse postsByYear(@RequestParam(value = "year") Integer year) {
+    return postService.getPostsByYear(year);
   }
 }

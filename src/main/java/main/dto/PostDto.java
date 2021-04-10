@@ -15,7 +15,7 @@ public class PostDto {
   private UserDto userDto;
 
   private String title;
-  private String text;
+  private String announce;
   private int likeCount;
   private int dislikeCount;
   private int commentCount;
