@@ -19,7 +19,7 @@ public class PostComments {
   private int id;
 
   @Column(name = "parent_id", columnDefinition = "INT")
-  private int parentId;
+  private Integer parentId;
 
   @Column(name = "user_id", nullable = false, columnDefinition = "INT")
   private int userId;

@@ -1,14 +1,12 @@
 package main.api.response;
 
+import java.util.List;
 import lombok.Data;
 import main.dto.PostDto;
-import main.model.Posts;
-
-import java.util.List;
 
 @Data
 public class PostResponse {
 
-  private int count;
+  private long count;
   private List<PostDto> posts;
 }

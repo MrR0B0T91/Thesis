@@ -1029,3 +1029,55 @@ databaseChangeLog:
             dbms: '!h2,  mysql'
             schemaName: postCommemtsTable
             tableName: post_comments
+
+  - changeSet:
+      id: insertPostComment2
+      author: dima_pak
+      changes:
+        - insert:
+            catalogName: thesis
+            columns:
+              - column:
+                  name: id
+                  value: 2
+              - column:
+                  name: post_id
+                  value: 1
+              - column:
+                  name: user_id
+                  value: 2
+              - column:
+                  name: time
+                  value: '2020-10-20 12:48:32'
+              - column:
+                  name: text
+                  value: "I think it's overrated"
+            dbms: '!h2,  mysql'
+            schemaName: postCommemtsTable
+            tableName: post_comments
+
+  - changeSet:
+      id: insertPostComment3
+      author: dima_pak
+      changes:
+        - insert:
+            catalogName: thesis
+            columns:
+              - column:
+                  name: id
+                  value: 3
+              - column:
+                  name: post_id
+                  value: 2
+              - column:
+                  name: user_id
+                  value: 3
+              - column:
+                  name: time
+                  value: '2020-12-28 09:15:32'
+              - column:
+                  name: text
+                  value: "One of the best SyFy movies I ever seen"
+            dbms: '!h2,  mysql'
+            schemaName: postCommemtsTable
+            tableName: post_comments

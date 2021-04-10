@@ -39,7 +39,7 @@ public class PostService {
       List<Posts> postsList = recentPage.getContent();
       List<PostDto> postDtoList =
           postsList.stream().map(this::entityToDto).collect(Collectors.toList());
-      postResponse.setCount(recentPage.getNumberOfElements());
+      postResponse.setCount(recentPage.getTotalElements());
       postResponse.setPosts(postDtoList);
     }
     if (mode.equals("popular")) {
@@ -48,7 +48,7 @@ public class PostService {
       List<Posts> postsList = popularPage.getContent();
       List<PostDto> postDtoList =
           postsList.stream().map(this::entityToDto).collect(Collectors.toList());
-      postResponse.setCount(popularPage.getNumberOfElements());
+      postResponse.setCount(popularPage.getTotalElements());
       postResponse.setPosts(postDtoList);
     }
     if (mode.equals("best")) {
@@ -57,7 +57,7 @@ public class PostService {
       List<Posts> postsList = bestPage.getContent();
       List<PostDto> postDtoList =
           postsList.stream().map(this::entityToDto).collect(Collectors.toList());
-      postResponse.setCount(bestPage.getNumberOfElements());
+      postResponse.setCount(bestPage.getTotalElements());
       postResponse.setPosts(postDtoList);
     }
     if (mode.equals("early")) {
@@ -65,7 +65,7 @@ public class PostService {
       Pageable pagingEarly = PageRequest.of(offset, limit, sort);
       Page<Posts> earlyPage = postRepository.findAll(pagingEarly);
       List<Posts> postsList = earlyPage.getContent();
-      postResponse.setCount(earlyPage.getNumberOfElements());
+      postResponse.setCount(earlyPage.getTotalElements());
       List<PostDto> postDtoList =
           postsList.stream().map(this::entityToDto).collect(Collectors.toList());
       postResponse.setPosts(postDtoList);
