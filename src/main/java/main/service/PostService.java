@@ -1,5 +1,6 @@
 package main.service;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
@@ -96,8 +97,8 @@ public class PostService {
       Pageable paging = PageRequest.of(offset, limit);
       Page<Posts> postsPage = postRepository.findPostsByQuery(query, paging);
       List<Posts> postsList = postsPage.getContent();
-      List<PostDto> postDtoList = postsList.stream().map(this::entityToDto)
-          .collect(Collectors.toList());
+      List<PostDto> postDtoList =
+          postsList.stream().map(this::entityToDto).collect(Collectors.toList());
       postResponse.setCount(postsPage.getTotalElements());
       postResponse.setPosts(postDtoList);
     }
@@ -110,15 +111,17 @@ public class PostService {
     HashMap<Date, Integer> posts = new HashMap<>();
     Calendar date = Calendar.getInstance();
     date.set(Calendar.YEAR, year);
+    
 
     List<Posts> yearList = postRepository.findPostsByYear(date);
 
     for (Posts post : yearList) {
 
       Calendar time = post.getTime();
-      years.add(time.get(Calendar.YEAR));
-
-      posts.put(time.getTime(), Collections.frequency(yearList, time));
+      if (!years.contains(time.get(Calendar.YEAR))) {
+        years.add(time.get(Calendar.YEAR));
+      }
+      posts.put(time.getTime(), Collections.frequency(yearList, post));
 
       calendarResponse.setYears(years);
       calendarResponse.setPosts(posts);
