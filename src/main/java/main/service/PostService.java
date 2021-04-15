@@ -15,6 +15,7 @@ import main.dto.UserDto;
 import main.model.PostComments;
 import main.model.PostVotes;
 import main.model.Posts;
+import main.model.Tags;
 import main.model.repositories.PostRepository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -105,28 +106,117 @@ public class PostService {
     return postResponse;
   }
 
-  public CalendarResponse getPostsByYear(Integer year) {
+  public CalendarResponse getPostsByYear(String year) {
 
     List<Integer> years = new ArrayList<>();
     HashMap<Date, Integer> posts = new HashMap<>();
+
     Calendar date = Calendar.getInstance();
-    date.set(Calendar.YEAR, year);
-    
 
     List<Posts> yearList = postRepository.findPostsByYear(date);
 
-    for (Posts post : yearList) {
+    if (year.isEmpty()) {
+      for (Posts post : yearList) {
 
-      Calendar time = post.getTime();
-      if (!years.contains(time.get(Calendar.YEAR))) {
-        years.add(time.get(Calendar.YEAR));
+        Calendar postTime = post.getTime();
+
+        if (!years.contains(postTime.get(Calendar.YEAR))) {
+          years.add(postTime.get(Calendar.YEAR));
+        }
+
+        posts.put(postTime.getTime(), Collections.frequency(yearList, post));
+
+        calendarResponse.setYears(years);
+        calendarResponse.setPosts(posts);
       }
-      posts.put(time.getTime(), Collections.frequency(yearList, post));
+    } else {
+
+      int parsedYear = Integer.parseInt(year);
+
+      Calendar endPoint = Calendar.getInstance();
+      Calendar startPoint = Calendar.getInstance();
+
+      endPoint.set(Calendar.YEAR, parsedYear);
+      endPoint.set(Calendar.MONTH, Calendar.DECEMBER);
+      endPoint.set(Calendar.DAY_OF_MONTH, 31);
+
+      startPoint.set(Calendar.YEAR, parsedYear);
+      startPoint.set(Calendar.MONTH, Calendar.JANUARY);
+      startPoint.set(Calendar.DAY_OF_MONTH, 1);
+
+      for (Posts post : yearList) {
+
+        Calendar postTime = post.getTime();
+
+        if (postTime.before(endPoint) && (postTime.after(startPoint))) {
+          posts.put(postTime.getTime(), Collections.frequency(yearList, post));
+        }
+      }
+      years.add(parsedYear);
 
       calendarResponse.setYears(years);
       calendarResponse.setPosts(posts);
     }
     return calendarResponse;
+  }
+
+  public PostResponse getPostsByDate(int offset, int limit,
+      String date) { // пока работает некорректно
+
+    sort = Sort.by("time").descending();
+    Pageable pagingRecent = PageRequest.of(offset, limit, sort);
+    Page<Posts> page = postRepository.findAll(pagingRecent);
+    List<Posts> postsList = page.getContent();
+    List<Posts> dateList = new ArrayList<>();
+
+    SimpleDateFormat dateFormat = new SimpleDateFormat();
+    dateFormat.applyPattern("yyyy-MM-dd");
+    Calendar calendarDate = Calendar.getInstance();
+
+    try {
+
+      Date givenDate = dateFormat.parse(date);
+      calendarDate.setTime(givenDate);
+
+      for (Posts post : postsList) {
+        if (post.getTime().equals(calendarDate)) {
+          dateList.add(post);
+        }
+      }
+    } catch (Exception ex) {
+      ex.printStackTrace();
+    }
+    List<PostDto> postDtoList =
+        dateList.stream().map(this::entityToDto).collect(Collectors.toList());
+
+    postResponse.setCount(page.getTotalElements());
+    postResponse.setPosts(postDtoList);
+    return postResponse;
+  }
+
+  public PostResponse getPostsByTag(int offset, int limit, String tag) {
+    sort = Sort.by("time").descending();
+    Pageable pagingRecent = PageRequest.of(offset, limit, sort);
+    Page<Posts> tagPage = postRepository.findAll(pagingRecent);
+    List<Posts> postsWithTagList = tagPage.getContent();
+
+    List<Posts> finalList = new ArrayList<>();
+
+    for (Posts post : postsWithTagList) {
+      List<Tags> tagList = post.getTagsList();
+      for (Tags postTag : tagList) {
+        if (postTag.getName().equals(tag)) {
+          finalList.add(post);
+        }
+      }
+    }
+    List<PostDto> postDtoList =
+        finalList.stream().map(this::entityToDto).collect(Collectors.toList());
+
+    postResponse.setCount(finalList.size());
+    postResponse.setPosts(postDtoList);
+
+    return postResponse;
   }
 
   private PostDto entityToDto(Posts post) {

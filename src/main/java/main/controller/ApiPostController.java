@@ -36,4 +36,20 @@ public class ApiPostController {
 
     return postService.getPost(offset, limit, query);
   }
+
+  @GetMapping("/byDate")
+  private PostResponse searchByDate(@RequestParam(value = "offset", defaultValue = "0") int offset,
+      @RequestParam(value = "limit", defaultValue = "10") int limit,
+      @RequestParam(value = "date") String date) {
+
+    return postService.getPostsByDate(offset, limit, date);
+  }
+
+  @GetMapping("/byTag")
+  private PostResponse searchByTag(@RequestParam(value = "offset", defaultValue = "0") int offset,
+      @RequestParam(value = "limit", defaultValue = "10") int limit,
+      @RequestParam(value = "tag") String tag) {
+
+    return postService.getPostsByTag(offset, limit, tag);
+  }
 }
