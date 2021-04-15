@@ -49,7 +49,8 @@ public class ApiGeneralController {
   }
 
   @GetMapping("/calendar")
-  private CalendarResponse postsByYear(@RequestParam(value = "year") Integer year) {
+  private CalendarResponse postsByYear(
+      @RequestParam(value = "year", defaultValue = "") String year) {
     return postService.getPostsByYear(year);
   }
 }
