@@ -42,7 +42,13 @@ public class PostService {
 
     if (mode.equals("recent")) {
       sort = Sort.by("time").descending();
-      Pageable pagingRecent = PageRequest.of(offset, limit, sort);
+      long count = postRepository.count();
+      long pages = count / limit;
+      int pageNumber = 0;
+      for (int i = 0; i < pages; i++) {
+        pageNumber = i + offset;
+      }
+      Pageable pagingRecent = PageRequest.of(pageNumber, limit, sort);
       Page<Posts> recentPage = postRepository.findAll(pagingRecent);
       List<Posts> postsList = recentPage.getContent();
       List<PostDto> postDtoList =
@@ -51,7 +57,13 @@ public class PostService {
       postResponse.setPosts(postDtoList);
     }
     if (mode.equals("popular")) {
-      Pageable pagingPopular = PageRequest.of(offset, limit);
+      long count = postRepository.count();
+      long pages = count / limit;
+      int pageNumber = 0;
+      for (int i = 0; i < pages; i++) {
+        pageNumber = i + offset;
+      }
+      Pageable pagingPopular = PageRequest.of(pageNumber, limit);
       Page<Posts> popularPage = postRepository.findPostsOrderByLikes(pagingPopular);
       List<Posts> postsList = popularPage.getContent();
       List<PostDto> postDtoList =
@@ -60,7 +72,13 @@ public class PostService {
       postResponse.setPosts(postDtoList);
     }
     if (mode.equals("best")) {
-      Pageable pagingBest = PageRequest.of(offset, limit);
+      long count = postRepository.count();
+      long pages = count / limit;
+      int pageNumber = 0;
+      for (int i = 0; i < pages; i++) {
+        pageNumber = i + offset;
+      }
+      Pageable pagingBest = PageRequest.of(pageNumber, limit);
       Page<Posts> bestPage = postRepository.findPostsOrderByComments(pagingBest);
       List<Posts> postsList = bestPage.getContent();
       List<PostDto> postDtoList =
@@ -70,7 +88,13 @@ public class PostService {
     }
     if (mode.equals("early")) {
       sort = Sort.by("time").ascending();
-      Pageable pagingEarly = PageRequest.of(offset, limit, sort);
+      long count = postRepository.count();
+      long pages = count / limit;
+      int pageNumber = 0;
+      for (int i = 0; i < pages; i++) {
+        pageNumber = i + offset;
+      }
+      Pageable pagingEarly = PageRequest.of(pageNumber, limit, sort);
       Page<Posts> earlyPage = postRepository.findAll(pagingEarly);
       List<Posts> postsList = earlyPage.getContent();
       postResponse.setCount(earlyPage.getTotalElements());
@@ -78,7 +102,6 @@ public class PostService {
           postsList.stream().map(this::entityToDto).collect(Collectors.toList());
       postResponse.setPosts(postDtoList);
     }
-
     return postResponse;
   }
 
@@ -86,7 +109,13 @@ public class PostService {
 
     if (query.isEmpty()) {
       sort = Sort.by("time").descending();
-      Pageable pagingRecent = PageRequest.of(offset, limit, sort);
+      long count = postRepository.count();
+      long pages = count / limit;
+      int pageNumber = 0;
+      for (int i = 0; i < pages; i++) {
+        pageNumber = i + offset;
+      }
+      Pageable pagingRecent = PageRequest.of(pageNumber, limit, sort);
       Page<Posts> recentPage = postRepository.findAll(pagingRecent);
       List<Posts> postsList = recentPage.getContent();
       List<PostDto> postDtoList =
@@ -95,7 +124,13 @@ public class PostService {
       postResponse.setPosts(postDtoList);
     } else {
 
-      Pageable paging = PageRequest.of(offset, limit);
+      long count = postRepository.count();
+      long pages = count / limit;
+      int pageNumber = 0;
+      for (int i = 0; i < pages; i++) {
+        pageNumber = i + offset;
+      }
+      Pageable paging = PageRequest.of(pageNumber, limit);
       Page<Posts> postsPage = postRepository.findPostsByQuery(query, paging);
       List<Posts> postsList = postsPage.getContent();
       List<PostDto> postDtoList =
@@ -164,7 +199,14 @@ public class PostService {
       String date) { // пока работает некорректно
 
     sort = Sort.by("time").descending();
-    Pageable pagingRecent = PageRequest.of(offset, limit, sort);
+    long count = postRepository.count();
+    long pages = count / limit;
+    int pageNumber = 0;
+    for (int i = 0; i < pages; i++) {
+      pageNumber = i + offset;
+    }
+    Pageable pagingRecent = PageRequest.of(pageNumber, limit, sort);
+
     Page<Posts> page = postRepository.findAll(pagingRecent);
     List<Posts> postsList = page.getContent();
     List<Posts> dateList = new ArrayList<>();
@@ -196,7 +238,13 @@ public class PostService {
 
   public PostResponse getPostsByTag(int offset, int limit, String tag) {
     sort = Sort.by("time").descending();
-    Pageable pagingRecent = PageRequest.of(offset, limit, sort);
+    long count = postRepository.count();
+    long pages = count / limit;
+    int pageNumber = 0;
+    for (int i = 0; i < pages; i++) {
+      pageNumber = i + offset;
+    }
+    Pageable pagingRecent = PageRequest.of(pageNumber, limit, sort);
     Page<Posts> tagPage = postRepository.findAll(pagingRecent);
     List<Posts> postsWithTagList = tagPage.getContent();
 

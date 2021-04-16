@@ -14,7 +14,8 @@ public class TagService {
   private final TagRepository tagRepository;
   private TagResponse tagResponse = new TagResponse();
   private HashMap<String, Double> tagHash = new HashMap<>();
-  private HashMap<Tags, Integer> namedTags = new HashMap<>();
+  private HashMap<Tags, Integer> tagsWithName = new HashMap<>();
+  private HashMap<String, Double> responseHash = new HashMap<>();
 
   public TagService(TagRepository tagRepository) {
     this.tagRepository = tagRepository;
@@ -22,40 +23,40 @@ public class TagService {
 
   public TagResponse getTags(String name) {
 
-    List<Tags> namedTag = tagRepository.findAllByName(name);
+    List<Tags> namedTag = tagRepository.findByName(name);
     List<Tags> tagsList = tagRepository.findAll();
 
     for (Tags tagName : tagsList) {
-      namedTags.put(tagName, Collections.frequency(tagsList, tagName));
+      tagsWithName.put(tagName, Collections.frequency(tagsList, tagName));
     }
 
-    int maxValue = Collections.max(namedTags.values());
+    int maxValue = Collections.max(tagsWithName.values());
+
+    for (Tags tag : tagsList) {
+      double singleTagValue = tagsWithName.get(tag);
+      double weights = tagsList.size();
+      double dWeightSomeTag = singleTagValue / weights;
+      double dWeightMax = maxValue / weights;
+      double k = 1 / dWeightMax;
+      double tagWeight = dWeightSomeTag * k;
+
+      tagHash.put(tag.getName(), tagWeight);
+    }
 
     if (!name.isEmpty()) {
-      double tag = namedTag.size();
+
+      double tagCount = namedTag.size();
       double weights = tagsList.size();
-      double dWeightTag = tag / weights;
+      double dWeightTag = tagCount / weights;
       double dWeightMax = maxValue / weights;
       double k = 1 / dWeightMax;
       double weightTag = dWeightTag * k;
 
-      tagHash.put(name, weightTag);
+      responseHash.put(name, weightTag);
+      tagResponse.setTags(responseHash);
+    } else {
+      tagResponse.setTags(tagHash);
     }
-
-    if (name.isEmpty()) {
-      for (Tags someTag : tagsList) {
-        double singleTagValue = namedTags.get(someTag);
-        double weights = tagsList.size();
-        double dWeightSomeTag = singleTagValue / weights;
-        double dWeightMax = maxValue / weights;
-        double k = 1 / dWeightMax;
-        double weightSomeTag = dWeightSomeTag * k;
-
-        tagHash.put(someTag.getName(), weightSomeTag);
-      }
-    }
-
-    tagResponse.setTags(tagHash);
 
     return tagResponse;
   }
