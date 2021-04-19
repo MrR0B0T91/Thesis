@@ -7,9 +7,13 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import main.api.response.CalendarResponse;
+import main.api.response.PostByIdResponse;
 import main.api.response.PostResponse;
+import main.dto.CommentDto;
+import main.dto.CommentUserDto;
 import main.dto.PostDto;
 import main.dto.UserDto;
 import main.model.PostComments;
@@ -33,6 +37,7 @@ public class PostService {
 
   private PostResponse postResponse = new PostResponse();
   private CalendarResponse calendarResponse = new CalendarResponse();
+  private PostByIdResponse postByIdResponse = new PostByIdResponse();
 
   public PostService(PostRepository postRepository) {
     this.postRepository = postRepository;
@@ -194,6 +199,78 @@ public class PostService {
     postResponse.setPosts(postDtoList);
 
     return postResponse;
+  }
+
+  public PostByIdResponse getPostById(int id) {
+
+    Optional<Posts> optionalPost = postRepository.findPostById(id);
+    if (optionalPost.isPresent()) {
+      Posts post = optionalPost.get();
+
+      Date date = post.getTime().getTime();
+      long unixTime = date.getTime() / 1000;
+
+      List<PostVotes> postVotesList = post.getPostVoteList();
+
+      int countLikes = 0;
+      int countDislikes = 0;
+      for (PostVotes postVote : postVotesList) {
+        int value = postVote.getValue();
+        if (value == 1) {
+          countLikes++;
+        }
+        if (value == -1) {
+          countDislikes++;
+        }
+      }
+
+      List<PostComments> postComments = post.getPostCommentsList();
+      List<Tags> tagsList = post.getTagsList();
+      List<CommentDto> commentDtoList = new ArrayList<>();
+      List<String> tags = new ArrayList<>();
+
+      CommentDto commentDto = new CommentDto();
+      CommentUserDto commentUserDto = new CommentUserDto();
+      UserDto userDtoForPost = new UserDto();
+
+      userDtoForPost.setId(post.getUser().getId());
+      userDtoForPost.setName(post.getUser().getName());
+
+      for (PostComments comment : postComments) {
+
+        int commentId = comment.getId();
+        long timestamp = comment.getTime().getTime() / 1000;
+        String text = comment.getText();
+
+        commentUserDto.setId(comment.getUser().getId());
+        commentUserDto.setName(comment.getUser().getName());
+        commentUserDto.setPhoto("path/to/photo.jpg");
+
+        commentDto.setId(commentId);
+        commentDto.setTimestamp(timestamp);
+        commentDto.setText(text);
+        commentDto.setUser(commentUserDto);
+
+        commentDtoList.add(commentDto);
+      }
+
+      for (Tags tag : tagsList) {
+        tags.add(tag.getName());
+      }
+
+      postByIdResponse.setId(post.getId());
+      postByIdResponse.setTimestamp(unixTime);
+      postByIdResponse.setUser(userDtoForPost);
+      postByIdResponse.setTitle(post.getTitle());
+      postByIdResponse.setText(post.getText());
+      postByIdResponse.setLikeCount(countLikes);
+      postByIdResponse.setDislikeCount(countDislikes);
+      postByIdResponse.setViewCount(post.getViewCount());
+      postByIdResponse.setComments(commentDtoList);
+      postByIdResponse.setTags(tags);
+
+    }
+    return postByIdResponse;
   }
 
   private PostDto entityToDto(Posts post) {

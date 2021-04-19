@@ -1,11 +1,17 @@
 package main.model;
 
 import java.util.Date;
+import java.util.List;
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import lombok.Data;
 
@@ -21,8 +27,9 @@ public class PostComments {
   @Column(name = "parent_id", columnDefinition = "INT")
   private Integer parentId;
 
-  @Column(name = "user_id", nullable = false, columnDefinition = "INT")
-  private int userId;
+  @ManyToOne
+  @JoinColumn(name = "user_id", nullable = false)
+  private Users user;
 
   @Column(name = "post_id", nullable = false, columnDefinition = "INT")
   private int postId;
