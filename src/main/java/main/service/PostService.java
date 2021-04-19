@@ -7,9 +7,13 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import main.api.response.CalendarResponse;
+import main.api.response.PostByIdResponse;
 import main.api.response.PostResponse;
+import main.dto.CommentDto;
+import main.dto.CommentUserDto;
 import main.dto.PostDto;
 import main.dto.UserDto;
 import main.model.PostComments;
@@ -33,6 +37,7 @@ public class PostService {
 
   private PostResponse postResponse = new PostResponse();
   private CalendarResponse calendarResponse = new CalendarResponse();
+  private PostByIdResponse postByIdResponse = new PostByIdResponse();
 
   public PostService(PostRepository postRepository) {
     this.postRepository = postRepository;
@@ -42,14 +47,7 @@ public class PostService {
 
     if (mode.equals("recent")) {
       sort = Sort.by("time").descending();
-      long count = postRepository.count();
-      long pages = count / limit;
-      int pageNumber = 0;
-      for (int i = 0; i < pages; i++) {
-        pageNumber = i + offset;
-      }
-      Pageable pagingRecent = PageRequest.of(pageNumber, limit, sort);
-      Page<Posts> recentPage = postRepository.findAll(pagingRecent);
+      Page<Posts> recentPage = postRepository.findAll(getSortedPaging(offset, limit, sort));
       List<Posts> postsList = recentPage.getContent();
       List<PostDto> postDtoList =
           postsList.stream().map(this::entityToDto).collect(Collectors.toList());
@@ -57,14 +55,7 @@ public class PostService {
       postResponse.setPosts(postDtoList);
     }
     if (mode.equals("popular")) {
-      long count = postRepository.count();
-      long pages = count / limit;
-      int pageNumber = 0;
-      for (int i = 0; i < pages; i++) {
-        pageNumber = i + offset;
-      }
-      Pageable pagingPopular = PageRequest.of(pageNumber, limit);
-      Page<Posts> popularPage = postRepository.findPostsOrderByLikes(pagingPopular);
+      Page<Posts> popularPage = postRepository.findPostsOrderByLikes(getPaging(offset, limit));
       List<Posts> postsList = popularPage.getContent();
       List<PostDto> postDtoList =
           postsList.stream().map(this::entityToDto).collect(Collectors.toList());
@@ -72,14 +63,7 @@ public class PostService {
       postResponse.setPosts(postDtoList);
     }
     if (mode.equals("best")) {
-      long count = postRepository.count();
-      long pages = count / limit;
-      int pageNumber = 0;
-      for (int i = 0; i < pages; i++) {
-        pageNumber = i + offset;
-      }
-      Pageable pagingBest = PageRequest.of(pageNumber, limit);
-      Page<Posts> bestPage = postRepository.findPostsOrderByComments(pagingBest);
+      Page<Posts> bestPage = postRepository.findPostsOrderByComments(getPaging(offset, limit));
       List<Posts> postsList = bestPage.getContent();
       List<PostDto> postDtoList =
           postsList.stream().map(this::entityToDto).collect(Collectors.toList());
@@ -88,14 +72,7 @@ public class PostService {
     }
     if (mode.equals("early")) {
       sort = Sort.by("time").ascending();
-      long count = postRepository.count();
-      long pages = count / limit;
-      int pageNumber = 0;
-      for (int i = 0; i < pages; i++) {
-        pageNumber = i + offset;
-      }
-      Pageable pagingEarly = PageRequest.of(pageNumber, limit, sort);
-      Page<Posts> earlyPage = postRepository.findAll(pagingEarly);
+      Page<Posts> earlyPage = postRepository.findAll(getSortedPaging(offset, limit, sort));
       List<Posts> postsList = earlyPage.getContent();
       postResponse.setCount(earlyPage.getTotalElements());
       List<PostDto> postDtoList =
@@ -109,29 +86,14 @@ public class PostService {
 
     if (query.isEmpty()) {
       sort = Sort.by("time").descending();
-      long count = postRepository.count();
-      long pages = count / limit;
-      int pageNumber = 0;
-      for (int i = 0; i < pages; i++) {
-        pageNumber = i + offset;
-      }
-      Pageable pagingRecent = PageRequest.of(pageNumber, limit, sort);
-      Page<Posts> recentPage = postRepository.findAll(pagingRecent);
+      Page<Posts> recentPage = postRepository.findAll(getSortedPaging(offset, limit, sort));
       List<Posts> postsList = recentPage.getContent();
       List<PostDto> postDtoList =
           postsList.stream().map(this::entityToDto).collect(Collectors.toList());
       postResponse.setCount(recentPage.getTotalElements());
       postResponse.setPosts(postDtoList);
     } else {
-
-      long count = postRepository.count();
-      long pages = count / limit;
-      int pageNumber = 0;
-      for (int i = 0; i < pages; i++) {
-        pageNumber = i + offset;
-      }
-      Pageable paging = PageRequest.of(pageNumber, limit);
-      Page<Posts> postsPage = postRepository.findPostsByQuery(query, paging);
+      Page<Posts> postsPage = postRepository.findPostsByQuery(query, getPaging(offset, limit));
       List<Posts> postsList = postsPage.getContent();
       List<PostDto> postDtoList =
           postsList.stream().map(this::entityToDto).collect(Collectors.toList());
@@ -144,90 +106,69 @@ public class PostService {
   public CalendarResponse getPostsByYear(String year) {
 
     List<Integer> years = new ArrayList<>();
-    HashMap<Date, Integer> posts = new HashMap<>();
+    HashMap<String, Integer> posts = new HashMap<>();
 
-    Calendar date = Calendar.getInstance();
+    Calendar currentDate = Calendar.getInstance();
 
-    List<Posts> yearList = postRepository.findPostsByYear(date);
+    List<Posts> yearList = postRepository.findPostsByYear(currentDate);
 
-    if (year.isEmpty()) {
-      for (Posts post : yearList) {
+    for (Posts post : yearList) {
 
-        Calendar postTime = post.getTime();
+      Calendar postTime = post.getTime();
 
-        if (!years.contains(postTime.get(Calendar.YEAR))) {
-          years.add(postTime.get(Calendar.YEAR));
-        }
-
-        posts.put(postTime.getTime(), Collections.frequency(yearList, post));
-
-        calendarResponse.setYears(years);
-        calendarResponse.setPosts(posts);
+      if (!years.contains(postTime.get(Calendar.YEAR))) {
+        years.add(postTime.get(Calendar.YEAR));
       }
-    } else {
-
-      int parsedYear = Integer.parseInt(year);
-
-      Calendar endPoint = Calendar.getInstance();
-      Calendar startPoint = Calendar.getInstance();
-
-      endPoint.set(Calendar.YEAR, parsedYear);
-      endPoint.set(Calendar.MONTH, Calendar.DECEMBER);
-      endPoint.set(Calendar.DAY_OF_MONTH, 31);
-
-      startPoint.set(Calendar.YEAR, parsedYear);
-      startPoint.set(Calendar.MONTH, Calendar.JANUARY);
-      startPoint.set(Calendar.DAY_OF_MONTH, 1);
-
-      for (Posts post : yearList) {
-
-        Calendar postTime = post.getTime();
-
-        if (postTime.before(endPoint) && (postTime.after(startPoint))) {
-          posts.put(postTime.getTime(), Collections.frequency(yearList, post));
-        }
-      }
-      years.add(parsedYear);
 
       calendarResponse.setYears(years);
-      calendarResponse.setPosts(posts);
     }
+
+    int parsedYear = Integer.parseInt(year);
+
+    Calendar endPoint = Calendar.getInstance();
+    Calendar startPoint = Calendar.getInstance();
+
+    endPoint.set(Calendar.YEAR, parsedYear);
+    endPoint.set(Calendar.MONTH, Calendar.DECEMBER);
+    endPoint.set(Calendar.DAY_OF_MONTH, 31);
+
+    startPoint.set(Calendar.YEAR, parsedYear);
+    startPoint.set(Calendar.MONTH, Calendar.JANUARY);
+    startPoint.set(Calendar.DAY_OF_MONTH, 1);
+
+    SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+
+    for (Posts post : yearList) {
+
+      Calendar postTime = post.getTime();
+
+      if (postTime.before(endPoint) && (postTime.after(startPoint))) {
+        posts.put(dateFormat.format(postTime.getTime()), Collections.frequency(yearList, post));
+      }
+    }
+
+    calendarResponse.setPosts(posts);
+
     return calendarResponse;
   }
 
   public PostResponse getPostsByDate(int offset, int limit,
-      String date) { // пока работает некорректно
+      String date) {
 
     sort = Sort.by("time").descending();
-    long count = postRepository.count();
-    long pages = count / limit;
-    int pageNumber = 0;
-    for (int i = 0; i < pages; i++) {
-      pageNumber = i + offset;
-    }
-    Pageable pagingRecent = PageRequest.of(pageNumber, limit, sort);
-
-    Page<Posts> page = postRepository.findAll(pagingRecent);
+    Page<Posts> page = postRepository.findAll(getSortedPaging(offset, limit, sort));
     List<Posts> postsList = page.getContent();
     List<Posts> dateList = new ArrayList<>();
 
     SimpleDateFormat dateFormat = new SimpleDateFormat();
     dateFormat.applyPattern("yyyy-MM-dd");
-    Calendar calendarDate = Calendar.getInstance();
 
-    try {
-
-      Date givenDate = dateFormat.parse(date);
-      calendarDate.setTime(givenDate);
-
-      for (Posts post : postsList) {
-        if (post.getTime().equals(calendarDate)) {
-          dateList.add(post);
-        }
+    for (Posts post : postsList) {
+      if (dateFormat.format(post.getTime().getTime()).equals(date)) {
+        dateList.add(post);
       }
-    } catch (Exception ex) {
-      ex.printStackTrace();
     }
+
     List<PostDto> postDtoList =
         dateList.stream().map(this::entityToDto).collect(Collectors.toList());
 
@@ -238,14 +179,7 @@ public class PostService {
 
   public PostResponse getPostsByTag(int offset, int limit, String tag) {
     sort = Sort.by("time").descending();
-    long count = postRepository.count();
-    long pages = count / limit;
-    int pageNumber = 0;
-    for (int i = 0; i < pages; i++) {
-      pageNumber = i + offset;
-    }
-    Pageable pagingRecent = PageRequest.of(pageNumber, limit, sort);
-    Page<Posts> tagPage = postRepository.findAll(pagingRecent);
+    Page<Posts> tagPage = postRepository.findAll(getSortedPaging(offset, limit, sort));
     List<Posts> postsWithTagList = tagPage.getContent();
 
     List<Posts> finalList = new ArrayList<>();
@@ -265,6 +199,78 @@ public class PostService {
     postResponse.setPosts(postDtoList);
 
     return postResponse;
+  }
+
+  public PostByIdResponse getPostById(int id) {
+
+    Optional<Posts> optionalPost = postRepository.findPostById(id);
+    if (optionalPost.isPresent()) {
+      Posts post = optionalPost.get();
+
+      Date date = post.getTime().getTime();
+      long unixTime = date.getTime() / 1000;
+
+      List<PostVotes> postVotesList = post.getPostVoteList();
+
+      int countLikes = 0;
+      int countDislikes = 0;
+      for (PostVotes postVote : postVotesList) {
+        int value = postVote.getValue();
+        if (value == 1) {
+          countLikes++;
+        }
+        if (value == -1) {
+          countDislikes++;
+        }
+      }
+
+      List<PostComments> postComments = post.getPostCommentsList();
+      List<Tags> tagsList = post.getTagsList();
+      List<CommentDto> commentDtoList = new ArrayList<>();
+      List<String> tags = new ArrayList<>();
+
+      CommentDto commentDto = new CommentDto();
+      CommentUserDto commentUserDto = new CommentUserDto();
+      UserDto userDtoForPost = new UserDto();
+
+      userDtoForPost.setId(post.getUser().getId());
+      userDtoForPost.setName(post.getUser().getName());
+
+      for (PostComments comment : postComments) {
+
+        int commentId = comment.getId();
+        long timestamp = comment.getTime().getTime() / 1000;
+        String text = comment.getText();
+
+        commentUserDto.setId(comment.getUser().getId());
+        commentUserDto.setName(comment.getUser().getName());
+        commentUserDto.setPhoto("path/to/photo.jpg");
+
+        commentDto.setId(commentId);
+        commentDto.setTimestamp(timestamp);
+        commentDto.setText(text);
+        commentDto.setUser(commentUserDto);
+
+        commentDtoList.add(commentDto);
+      }
+
+      for (Tags tag : tagsList) {
+        tags.add(tag.getName());
+      }
+
+      postByIdResponse.setId(post.getId());
+      postByIdResponse.setTimestamp(unixTime);
+      postByIdResponse.setUser(userDtoForPost);
+      postByIdResponse.setTitle(post.getTitle());
+      postByIdResponse.setText(post.getText());
+      postByIdResponse.setLikeCount(countLikes);
+      postByIdResponse.setDislikeCount(countDislikes);
+      postByIdResponse.setViewCount(post.getViewCount());
+      postByIdResponse.setComments(commentDtoList);
+      postByIdResponse.setTags(tags);
+
+    }
+    return postByIdResponse;
   }
 
   private PostDto entityToDto(Posts post) {
@@ -316,5 +322,31 @@ public class PostService {
     postDto.setViewCount(post.getViewCount());
 
     return postDto;
+  }
+
+  public Pageable getPaging(int offset, int limit) {
+    Pageable paging;
+    long count = postRepository.count();
+    long pages = count / limit;
+    int pageNumber = 0;
+    for (int i = 0; i < pages; i++) {
+      pageNumber = i + offset;
+    }
+    paging = PageRequest.of(pageNumber, limit);
+
+    return paging;
+  }
+
+  public Pageable getSortedPaging(int offset, int limit, Sort sort) {
+    Pageable sortedPaging;
+    long count = postRepository.count();
+    long pages = count / limit;
+    int pageNumber = 0;
+    for (int i = 0; i < pages; i++) {
+      pageNumber = i + offset;
+    }
+    sortedPaging = PageRequest.of(pageNumber, limit, sort);
+
+    return sortedPaging;
   }
 }
