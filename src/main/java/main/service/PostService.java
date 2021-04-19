@@ -244,7 +244,7 @@ public class PostService {
 
         commentUserDto.setId(comment.getUser().getId());
         commentUserDto.setName(comment.getUser().getName());
-        commentUserDto.setPhoto("path/to/photo.jpg");
+        commentUserDto.setPhoto(comment.getUser().getPhoto());
 
         commentDto.setId(commentId);
         commentDto.setTimestamp(timestamp);
