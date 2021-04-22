@@ -20,11 +20,15 @@ import main.model.PostComments;
 import main.model.PostVotes;
 import main.model.Posts;
 import main.model.Tags;
+import main.model.Users;
 import main.model.repositories.PostRepository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.security.authentication.AnonymousAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -258,17 +262,33 @@ public class PostService {
         tags.add(tag.getName());
       }
 
+      int viewCount = post.getViewCount();
+
+      Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+      if (!(authentication instanceof AnonymousAuthenticationToken)) {
+
+        String currentUserName = authentication.getName();
+        String authorName = post.getUser().getName();
+
+        Users user = (Users) authentication.getPrincipal();
+
+        boolean isModerator = user.isModerator();
+        boolean isAuthor = authorName.equals(currentUserName);
+        if ((!isAuthor) || (!isModerator)) {
+          viewCount++;
+        }
+      }
       postByIdResponse.setId(post.getId());
       postByIdResponse.setTimestamp(unixTime);
+      postByIdResponse.setActive(post.isActive());
       postByIdResponse.setUser(userDtoForPost);
       postByIdResponse.setTitle(post.getTitle());
       postByIdResponse.setText(post.getText());
       postByIdResponse.setLikeCount(countLikes);
       postByIdResponse.setDislikeCount(countDislikes);
-      postByIdResponse.setViewCount(post.getViewCount());
+      postByIdResponse.setViewCount(viewCount);
       postByIdResponse.setComments(commentDtoList);
       postByIdResponse.setTags(tags);
-
     }
     return postByIdResponse;
   }
