@@ -17,6 +17,13 @@
             </Attribute>
           </value>
         </entry>
+        <entry key="\src\main\java\main\service\PostService.java">
+          <value>
+            <Attribute>
+              <option name="separator" value=";" />
+            </Attribute>
+          </value>
+        </entry>
         <entry key="\src\main\resources\application.yml">
           <value>
             <Attribute>

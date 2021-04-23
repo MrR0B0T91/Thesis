@@ -20,8 +20,9 @@ import main.model.PostComments;
 import main.model.PostVotes;
 import main.model.Posts;
 import main.model.Tags;
-import main.model.Users;
 import main.model.repositories.PostRepository;
+import main.springsecurity.UserPrincipal;
+import main.springsecurity.UserPrincipalDetailsService;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -35,6 +36,7 @@ import org.springframework.stereotype.Service;
 public class PostService {
 
   private final PostRepository postRepository;
+  private final UserPrincipalDetailsService userPrincipalDetailsService;
 
   private Sort sort;
   private final Integer MAX_LENGTH = 150;
@@ -43,8 +45,10 @@ public class PostService {
   private CalendarResponse calendarResponse = new CalendarResponse();
   private PostByIdResponse postByIdResponse = new PostByIdResponse();
 
-  public PostService(PostRepository postRepository) {
+  public PostService(PostRepository postRepository,
+      UserPrincipalDetailsService userPrincipalDetailsService) {
     this.postRepository = postRepository;
+    this.userPrincipalDetailsService = userPrincipalDetailsService;
   }
 
   public PostResponse getPosts(int offset, int limit, String mode) {
@@ -270,9 +274,11 @@ public class PostService {
         String currentUserName = authentication.getName();
         String authorName = post.getUser().getName();
 
-        Users user = (Users) authentication.getPrincipal();
+        UserPrincipal userPrincipal = (UserPrincipal) userPrincipalDetailsService
+            .loadUserByUsername(currentUserName);
 
-        boolean isModerator = user.isModerator();
+        boolean isModerator = userPrincipal.isModerator();
+
         boolean isAuthor = authorName.equals(currentUserName);
         if ((!isAuthor) || (!isModerator)) {
           viewCount++;
