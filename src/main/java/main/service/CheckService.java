@@ -6,32 +6,45 @@ import main.model.ModerationStatus;
 import main.model.Posts;
 import main.model.Users;
 import main.model.repositories.PostRepository;
-import main.model.repositories.UserRepository;
+import main.springsecurity.UserPrincipal;
+import main.springsecurity.UserPrincipalDetailsService;
+import org.springframework.security.authentication.AnonymousAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 @Service
 public class CheckService {
 
-  private final UserRepository userRepository;
+  private final UserPrincipalDetailsService userPrincipalDetailsService;
   private final PostRepository postRepository;
   private int moderationCount;
 
   CheckResponse checkResponse = new CheckResponse();
   Users user = new Users();
 
-  public CheckService(UserRepository userRepository,
+  public CheckService(
+      UserPrincipalDetailsService userPrincipalDetailsService,
       PostRepository postRepository) {
-    this.userRepository = userRepository;
+    this.userPrincipalDetailsService = userPrincipalDetailsService;
+
     this.postRepository = postRepository;
   }
 
   public CheckResponse getResult() {
 
-    user.setId(1);
-    user.setName("Jack");
-    user.setPhoto("avatar");
-    user.setEmail("email@.com");
-    user.setModerator(true);
+    Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+    if (!(authentication instanceof AnonymousAuthenticationToken)) {
+      String currentUserName = authentication.getName();
+      UserPrincipal userPrincipal = (UserPrincipal) userPrincipalDetailsService
+          .loadUserByUsername(currentUserName);
+
+      user.setId(userPrincipal.getId());
+      user.setName(currentUserName);
+      user.setPhoto(userPrincipal.getPhoto());
+      user.setEmail(userPrincipal.getEmail());
+      user.setModerator(userPrincipal.isModerator());
+    }
 
     List<Posts> newPosts = postRepository.findAllByModerationStatus(ModerationStatus.NEW);
     moderationCount = newPosts.size();
