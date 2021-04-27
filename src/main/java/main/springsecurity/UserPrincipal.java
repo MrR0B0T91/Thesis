@@ -59,4 +59,16 @@ public class UserPrincipal implements UserDetails {
   public boolean isModerator() {
     return this.user.isModerator();
   }
+
+  public int getId() {
+    return this.user.getId();
+  }
+
+  public String getPhoto() {
+    return this.user.getPhoto();
+  }
+
+  public String getEmail() {
+    return this.user.getEmail();
+  }
 }
