@@ -277,7 +277,7 @@ public class PostService {
         UserPrincipal userPrincipal = (UserPrincipal) userPrincipalDetailsService
             .loadUserByUsername(currentUserName);
 
-        boolean isModerator = userPrincipal.isEnabled();
+        boolean isModerator = userPrincipal.isModerator();
 
         boolean isAuthor = authorName.equals(currentUserName);
         if ((!isAuthor) || (!isModerator)) {
