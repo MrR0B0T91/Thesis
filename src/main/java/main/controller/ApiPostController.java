@@ -3,11 +3,11 @@ package main.controller;
 import main.api.response.PostByIdResponse;
 import main.api.response.PostResponse;
 import main.service.PostService;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
@@ -21,7 +21,7 @@ public class ApiPostController {
   }
 
   @GetMapping
-  @ResponseBody
+  @PreAuthorize("hasAuthority('user:write')")
   private PostResponse posts(
       @RequestParam(value = "offset", defaultValue = "0") int offset,
       @RequestParam(value = "limit", defaultValue = "10") int limit,
@@ -31,6 +31,7 @@ public class ApiPostController {
   }
 
   @GetMapping("/search")
+  @PreAuthorize("hasAuthority('user:moderate')")
   private PostResponse postSearch(
       @RequestParam(value = "offset", defaultValue = "0") int offset,
       @RequestParam(value = "limit", defaultValue = "10") int limit,
@@ -56,7 +57,7 @@ public class ApiPostController {
   }
 
   @GetMapping("/{id}")
-  public PostByIdResponse getPostById(@PathVariable int id){
+  public PostByIdResponse getPostById(@PathVariable int id) {
 
     return postService.getPostById(id);
   }

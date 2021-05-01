@@ -1,39 +1,33 @@
 package main.springsecurity;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import main.model.Users;
+import lombok.Data;
+import main.model.User;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
-public class UserPrincipal implements UserDetails {
+@Data
+public class SecurityUser implements UserDetails {
 
-  private Users user;
-
-  public UserPrincipal(Users user) {
-    this.user = user;
-  }
+  private final String username;
+  private final String password;
+  private final List<SimpleGrantedAuthority> authorities;
 
   @Override
   public Collection<? extends GrantedAuthority> getAuthorities() {
-    List<GrantedAuthority> authorities = new ArrayList<>();
-    if (user.isModerator()) {
-      GrantedAuthority authority = new SimpleGrantedAuthority("ROLE_MODERATOR");
-      authorities.add(authority);
-    }
     return authorities;
   }
 
   @Override
   public String getPassword() {
-    return this.user.getPassword();
+    return password;
   }
 
   @Override
   public String getUsername() {
-    return this.user.getName();
+    return username;
   }
 
   @Override
@@ -56,19 +50,9 @@ public class UserPrincipal implements UserDetails {
     return true;
   }
 
-  public boolean isModerator() {
-    return this.user.isModerator();
-  }
-
-  public int getId() {
-    return this.user.getId();
-  }
-
-  public String getPhoto() {
-    return this.user.getPhoto();
-  }
-
-  public String getEmail() {
-    return this.user.getEmail();
+  public static UserDetails fromUser(User user) {
+    return new org.springframework.security.core.userdetails.User(
+        user.getEmail(), user.getPassword(), true, true, true, true,
+        user.getRole().getAuthorities());
   }
 }

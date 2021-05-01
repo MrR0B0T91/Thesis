@@ -2,59 +2,64 @@ package main.service;
 
 import java.util.List;
 import main.api.response.CheckResponse;
+import main.api.response.UserLoginResponse;
 import main.model.ModerationStatus;
 import main.model.Posts;
-import main.model.Users;
 import main.model.repositories.PostRepository;
-import main.springsecurity.UserPrincipal;
-import main.springsecurity.UserPrincipalDetailsService;
+import main.model.repositories.UserRepository;
+import main.springsecurity.UserDetailsServiceImpl;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.User;
 import org.springframework.stereotype.Service;
 
 @Service
 public class CheckService {
 
-  private final UserPrincipalDetailsService userPrincipalDetailsService;
+  private final UserDetailsServiceImpl userDetailsServiceImpl;
   private final PostRepository postRepository;
+  private final UserRepository userRepository;
+
   private int moderationCount;
 
   CheckResponse checkResponse = new CheckResponse();
-  Users user = new Users();
+  UserLoginResponse userLoginResponse = new UserLoginResponse();
 
   public CheckService(
-      UserPrincipalDetailsService userPrincipalDetailsService,
-      PostRepository postRepository) {
-    this.userPrincipalDetailsService = userPrincipalDetailsService;
+      UserDetailsServiceImpl userDetailsServiceImpl,
+      PostRepository postRepository, UserRepository userRepository) {
+    this.userDetailsServiceImpl = userDetailsServiceImpl;
 
     this.postRepository = postRepository;
+    this.userRepository = userRepository;
   }
 
   public CheckResponse getResult() {
 
-    Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-    if (!(authentication instanceof AnonymousAuthenticationToken)) {
-      String currentUserName = authentication.getName();
-      UserPrincipal userPrincipal = (UserPrincipal) userPrincipalDetailsService
-          .loadUserByUsername(currentUserName);
-
-      user.setId(userPrincipal.getId());
-      user.setName(currentUserName);
-      user.setPhoto(userPrincipal.getPhoto());
-      user.setEmail(userPrincipal.getEmail());
-      user.setModerator(userPrincipal.isModerator());
-    }
-
     List<Posts> newPosts = postRepository.findAllByModerationStatus(ModerationStatus.NEW);
     moderationCount = newPosts.size();
 
-    if (user.isModerator()) {
+    Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+    if (!(authentication instanceof AnonymousAuthenticationToken)) {
+
+      User user = (User) authentication.getPrincipal();
+      main.model.User currentUser = userRepository.findByEmail(user.getUsername());
+
+      userLoginResponse.setId(currentUser.getId());
+      userLoginResponse.setName(currentUser.getName());
+      userLoginResponse.setPhoto(currentUser.getPhoto());
+      userLoginResponse.setEmail(currentUser.getEmail());
+      userLoginResponse.setModeration(currentUser.getIsModerator() == 1);
+      userLoginResponse.setSettings(true);
+
+      if (userLoginResponse.isModeration()) {
+        userLoginResponse.setModerationCount(moderationCount);
+      } else {
+        userLoginResponse.setModerationCount(0);
+      }
       checkResponse.setResult(true);
-      checkResponse.setUser(user);
-      checkResponse.setModeration(true);
-      checkResponse.setModerationCount(moderationCount);
-      checkResponse.setSettings(true);
+      checkResponse.setUser(userLoginResponse);
     } else {
       checkResponse.setResult(false);
     }

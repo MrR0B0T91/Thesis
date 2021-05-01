@@ -20,7 +20,7 @@ public interface PostRepository extends JpaRepository<Posts, Integer> {
   @Query(
       "SELECT p "
           + "FROM Posts p "
-          + "LEFT JOIN Users u ON u.id = p.user "
+          + "LEFT JOIN User u ON u.id = p.user "
           + "LEFT JOIN PostVotes pv1 ON p.id = pv1.postId AND pv1.value = 1 "
           + "LEFT JOIN PostVotes pv2 ON p.id = pv2.postId AND pv2.value = -1 "
           + "LEFT JOIN PostComments pc ON p.id = pc.postId "
@@ -31,7 +31,7 @@ public interface PostRepository extends JpaRepository<Posts, Integer> {
   @Query(
       "SELECT p "
           + "FROM Posts p "
-          + "LEFT JOIN Users u ON u.id = p.user "
+          + "LEFT JOIN User u ON u.id = p.user "
           + "LEFT JOIN PostVotes pv1 ON p.id = pv1.postId AND pv1.value = 1 "
           + "LEFT JOIN PostVotes pv2 ON p.id = pv2.postId AND pv2.value = -1 "
           + "LEFT JOIN PostComments pc ON p.id = pc.postId "
@@ -43,7 +43,7 @@ public interface PostRepository extends JpaRepository<Posts, Integer> {
   @Query(
       "SELECT p "
           + "FROM Posts p "
-          + "LEFT JOIN Users u ON u.id = p.user "
+          + "LEFT JOIN User u ON u.id = p.user "
           + "LEFT JOIN PostVotes pv1 ON p.id = pv1.postId AND pv1.value = 1 "
           + "LEFT JOIN PostVotes pv2 ON p.id = pv2.postId AND pv2.value = -1 "
           + "LEFT JOIN PostComments pc ON p.id = pc.postId "
@@ -55,7 +55,7 @@ public interface PostRepository extends JpaRepository<Posts, Integer> {
   @Query(
       "SELECT p "
           + "FROM Posts p "
-          + "LEFT JOIN Users u ON u.id = p.user "
+          + "LEFT JOIN User u ON u.id = p.user "
           + "LEFT JOIN PostVotes pv1 ON p.id = pv1.postId AND pv1.value = 1 "
           + "LEFT JOIN PostVotes pv2 ON p.id = pv2.postId AND pv2.value = -1 "
           + "LEFT JOIN PostComments pc ON p.id = pc.postId "
@@ -73,7 +73,7 @@ public interface PostRepository extends JpaRepository<Posts, Integer> {
   @Query(
       "SELECT p "
           + "FROM Posts p "
-          + "LEFT JOIN Users u ON u.id = p.user "
+          + "LEFT JOIN User u ON u.id = p.user "
           + "LEFT JOIN PostVotes pv1 ON p.id = pv1.postId AND pv1.value = 1 "
           + "LEFT JOIN PostVotes pv2 ON p.id = pv2.postId AND pv2.value = -1 "
           + "LEFT JOIN PostComments pc ON p.id = pc.postId "

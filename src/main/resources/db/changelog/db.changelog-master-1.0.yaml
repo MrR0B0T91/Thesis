@@ -478,7 +478,7 @@ databaseChangeLog:
                   value: "samemail@mail.com"
               - column:
                   name: password
-                  value: "samPassword"
+                  value: "$2y$12$gVHMAYMtsBzlv/QsWcfWFOy.X5AzKqswvcGOqmWDH2hYRge9aQHta"
               - column:
                   name: code
                   value: "samCode"
@@ -513,7 +513,7 @@ databaseChangeLog:
                   value: "joeemail@mail.com"
               - column:
                   name: password
-                  value: "joePassword"
+                  value: "$2y$12$bsgw2jYOYJb.NEP4q0RP0.dxD13e4/r9zhbTWMZuJZzm9w5G7scIu"
               - column:
                   name: code
                   value: "joeCode"
@@ -548,7 +548,7 @@ databaseChangeLog:
                   value: "eliotemail@mail.com"
               - column:
                   name: password
-                  value: "eliotPassword"
+                  value: "$2y$12$0CDuy3RS8zvjqFPTaqYW9ezqbcBR5CtKWdRIR/jKr.gcB8wwcpnqu"
               - column:
                   name: code
                   value: "eliotCode"
@@ -583,13 +583,47 @@ databaseChangeLog:
                   value: "lackemail@mail.com"
               - column:
                   name: password
-                  value: "jackPassword"
+                  value: "$2y$12$63gvaW1L4yTYL1PmHERoEeq6UwQhvSJE/L0jmwjTi8ITM/7a9fWyO"
               - column:
                   name: code
                   value: "jackCode"
               - column:
                   name: photo
                   value: "jackPhoto"
+            dbms: '!h2,  mysql'
+            schemaName: usersTable
+            tableName: users
+  - changeSet:
+      id: insertUsers5
+      author: dima_pak
+      changes:
+        - insert:
+            catalogName: thesis
+            columns:
+              - column:
+                  name: id
+                  value: 5
+              - column:
+                  name: is_moderator
+                  value: 1
+              - column:
+                  name: reg_time
+                  value: '2021-04-30 13:45:32'
+              - column:
+                  name: name
+                  value: "Mark"
+              - column:
+                  name: email
+                  value: "markemail@mail.com"
+              - column:
+                  name: password
+                  value: "$2y$12$iepsz5.w.dqxtM2V.DlAVO/Jjg2PzR6WI79UwdcGuqGYNWji43Aou"
+              - column:
+                  name: code
+                  value: "eliotCode"
+              - column:
+                  name: photo
+                  value: "eliotPhoto"
             dbms: '!h2,  mysql'
             schemaName: usersTable
             tableName: users
