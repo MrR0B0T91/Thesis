@@ -40,7 +40,7 @@ public class Posts {
 
   @ManyToOne
   @JoinColumn(name = "user_id", nullable = false)
-  private Users user;
+  private User user;
 
   @Column(nullable = false, columnDefinition = "DATETIME")
   private Calendar time;

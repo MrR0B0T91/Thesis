@@ -21,8 +21,7 @@ import main.model.PostVotes;
 import main.model.Posts;
 import main.model.Tags;
 import main.model.repositories.PostRepository;
-import main.springsecurity.UserPrincipal;
-import main.springsecurity.UserPrincipalDetailsService;
+import main.model.repositories.UserRepository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -30,13 +29,14 @@ import org.springframework.data.domain.Sort;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.User;
 import org.springframework.stereotype.Service;
 
 @Service
 public class PostService {
 
   private final PostRepository postRepository;
-  private final UserPrincipalDetailsService userPrincipalDetailsService;
+  private final UserRepository userRepository;
 
   private Sort sort;
   private final Integer MAX_LENGTH = 150;
@@ -46,9 +46,10 @@ public class PostService {
   private PostByIdResponse postByIdResponse = new PostByIdResponse();
 
   public PostService(PostRepository postRepository,
-      UserPrincipalDetailsService userPrincipalDetailsService) {
+      UserRepository userRepository) {
     this.postRepository = postRepository;
-    this.userPrincipalDetailsService = userPrincipalDetailsService;
+
+    this.userRepository = userRepository;
   }
 
   public PostResponse getPosts(int offset, int limit, String mode) {
@@ -274,12 +275,12 @@ public class PostService {
         String currentUserName = authentication.getName();
         String authorName = post.getUser().getName();
 
-        UserPrincipal userPrincipal = (UserPrincipal) userPrincipalDetailsService
-            .loadUserByUsername(currentUserName);
+        User user = (User) authentication.getPrincipal();
+        main.model.User currentUser = userRepository.findByEmail(user.getUsername());
 
-        boolean isModerator = userPrincipal.isModerator();
-
+        boolean isModerator = currentUser.getIsModerator() == 1;
         boolean isAuthor = authorName.equals(currentUserName);
+
         if ((!isAuthor) || (!isModerator)) {
           viewCount++;
         }

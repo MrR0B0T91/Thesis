@@ -1,17 +1,25 @@
 package main.model;
 
-import lombok.Data;
-import lombok.NoArgsConstructor;
-
-import javax.persistence.*;
 import java.util.Date;
 import java.util.List;
+import javax.persistence.CascadeType;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.FetchType;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.ManyToMany;
+import javax.persistence.OneToMany;
+import javax.persistence.Table;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Data
 @NoArgsConstructor
 @Entity
 @Table(name = "users")
-public class Users {
+public class User {
 
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -19,7 +27,7 @@ public class Users {
   private int id;
 
   @Column(name = "is_moderator", nullable = false, columnDefinition = "TINYINT")
-  private boolean isModerator;
+  private int isModerator;
 
   @Column(name = "reg_time", nullable = false, columnDefinition = "DATETIME")
   private Date regTime;
@@ -44,4 +52,8 @@ public class Users {
 
   @ManyToMany(mappedBy = "postCommentsList", fetch = FetchType.LAZY)
   private List<Posts> postsWithComments;
+
+  public Role getRole() {
+    return isModerator == 1 ? Role.MODERATOR : Role.USER;
+  }
 }
