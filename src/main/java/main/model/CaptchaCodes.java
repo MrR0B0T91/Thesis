@@ -1,5 +1,6 @@
 package main.model;
 
+import java.util.Calendar;
 import java.util.Date;
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -19,7 +20,7 @@ public class CaptchaCodes {
   private int id;
 
   @Column(nullable = false, columnDefinition = "DATETIME")
-  private Date time;
+  private Calendar time;
 
   @Column(nullable = false, columnDefinition = "TINYTEXT")
   private String code;

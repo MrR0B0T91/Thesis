@@ -281,8 +281,10 @@ public class PostService {
         boolean isModerator = currentUser.getIsModerator() == 1;
         boolean isAuthor = authorName.equals(currentUserName);
 
-        if ((!isAuthor) || (!isModerator)) {
-          viewCount++;
+        if ((isAuthor) || (isModerator)) {
+          postByIdResponse.setViewCount(viewCount);
+        } else {
+          postByIdResponse.setViewCount(++viewCount);
         }
       }
       postByIdResponse.setId(post.getId());
@@ -293,7 +295,7 @@ public class PostService {
       postByIdResponse.setText(post.getText());
       postByIdResponse.setLikeCount(countLikes);
       postByIdResponse.setDislikeCount(countDislikes);
-      postByIdResponse.setViewCount(viewCount);
+
       postByIdResponse.setComments(commentDtoList);
       postByIdResponse.setTags(tags);
     }

@@ -1,13 +1,16 @@
 package main.controller;
 
 import main.api.requset.LoginRequest;
+import main.api.requset.RegisterRequest;
 import main.api.response.CaptchaResponse;
 import main.api.response.CheckResponse;
 import main.api.response.LoginResponse;
+import main.api.response.RegisterResponse;
 import main.api.response.UserLoginResponse;
 import main.model.repositories.UserRepository;
 import main.service.CaptchaService;
 import main.service.CheckService;
+import main.service.RegisterService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -28,15 +31,17 @@ public class ApiAuthController {
   private final CaptchaService captchaService;
   private final AuthenticationManager authenticationManager;
   private final UserRepository userRepository;
+  private final RegisterService registerService;
 
   @Autowired
   public ApiAuthController(CheckService checkService, CaptchaService captchaService,
       AuthenticationManager authenticationManager,
-      UserRepository userRepository) {
+      UserRepository userRepository, RegisterService registerService) {
     this.checkService = checkService;
     this.captchaService = captchaService;
     this.authenticationManager = authenticationManager;
     this.userRepository = userRepository;
+    this.registerService = registerService;
   }
 
   @GetMapping("/check")
@@ -47,6 +52,12 @@ public class ApiAuthController {
   @GetMapping("/captcha")
   private CaptchaResponse captcha() {
     return captchaService.getCaptcha();
+  }
+
+  @PostMapping("/register")
+  public RegisterResponse register(@RequestBody RegisterRequest registerRequest) {
+
+    return registerService.register(registerRequest);
   }
 
   @PostMapping("/login")
