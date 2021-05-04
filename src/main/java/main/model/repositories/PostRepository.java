@@ -82,4 +82,16 @@ public interface PostRepository extends JpaRepository<Posts, Integer> {
           + "WHERE p.isActive = 1 AND p.moderationStatus = 'ACCEPTED' AND p.time <= CURRENT_DATE() AND p.id = :id "
           + "GROUP BY p.id")
   Optional<Posts> findPostById(@Param("id") int id);
+
+  @Query(
+      "SELECT p "
+          + "FROM Posts p "
+          + "LEFT JOIN User u ON u.id = p.user "
+          + "LEFT JOIN PostVotes pv1 ON p.id = pv1.postId AND pv1.value = 1 "
+          + "LEFT JOIN PostVotes pv2 ON p.id = pv2.postId AND pv2.value = -1 "
+          + "LEFT JOIN PostComments pc ON p.id = pc.postId "
+          + "WHERE p.isActive = 1 AND p.moderationStatus = :STATUS AND p.moderatorId = :id "
+          + "GROUP BY p.id")
+  Page<Posts> findModeratedPosts(@Param("id") int id, @Param("STATUS") ModerationStatus status,
+      Pageable pageable);
 }

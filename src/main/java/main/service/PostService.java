@@ -16,6 +16,7 @@ import main.dto.CommentDto;
 import main.dto.CommentUserDto;
 import main.dto.PostDto;
 import main.dto.UserDto;
+import main.model.ModerationStatus;
 import main.model.PostComments;
 import main.model.PostVotes;
 import main.model.Posts;
@@ -300,6 +301,24 @@ public class PostService {
       postByIdResponse.setTags(tags);
     }
     return postByIdResponse;
+  }
+
+  public PostResponse getModerationPosts(int offset, int limit, ModerationStatus status) {
+
+    Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+    User user = (User) authentication.getPrincipal();
+    main.model.User currentUser = userRepository.findByEmail(user.getUsername());
+
+    sort = Sort.by("time").descending();
+    Page<Posts> recentPage = postRepository
+        .findModeratedPosts(currentUser.getId(), status, getSortedPaging(offset, limit, sort));
+    List<Posts> postsList = recentPage.getContent();
+    List<PostDto> postDtoList =
+        postsList.stream().map(this::entityToDto).collect(Collectors.toList());
+    postResponse.setCount(recentPage.getTotalElements());
+    postResponse.setPosts(postDtoList);
+
+    return postResponse;
   }
 
   private PostDto entityToDto(Posts post) {

@@ -2,6 +2,7 @@ package main.controller;
 
 import main.api.response.PostByIdResponse;
 import main.api.response.PostResponse;
+import main.model.ModerationStatus;
 import main.service.PostService;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -62,5 +63,14 @@ public class ApiPostController {
   public PostByIdResponse getPostById(@PathVariable int id) {
 
     return postService.getPostById(id);
+  }
+
+  @GetMapping("/moderation")
+  @PreAuthorize("hasAuthority('user:moderate')")
+  public PostResponse moderationPosts(
+      @RequestParam(value = "offset", defaultValue = "0") int offset,
+      @RequestParam(value = "limit", defaultValue = "10") int limit,
+      @RequestParam(value = "status", defaultValue = "NEW") ModerationStatus status) {
+    return postService.getModerationPosts(offset, limit, status);
   }
 }
