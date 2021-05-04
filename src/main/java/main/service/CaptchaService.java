@@ -4,7 +4,6 @@ import com.github.cage.Cage;
 import com.github.cage.GCage;
 import java.awt.image.BufferedImage;
 import java.awt.image.DataBufferByte;
-import java.util.Arrays;
 import java.util.Base64;
 import java.util.Calendar;
 import java.util.List;
@@ -40,16 +39,13 @@ public class CaptchaService {
     String image = "data:image/png;base64, " + encodedString;
     captchaResponse.setImage(image);
 
-    String code = Arrays
-        .toString(imageBytes); // вместо этого нужно задать правильное знвчение капчи
-
     CaptchaCodes captcha = new CaptchaCodes();
     Calendar currentDate = Calendar.getInstance();
-    captcha.setCode(code);
+    captcha.setCode(token);
     captcha.setSecretCode(secret);
     captcha.setTime(currentDate);
 
-    captchaCodeRepository.save(captcha); // code?
+    captchaCodeRepository.save(captcha);
 
     List<CaptchaCodes> captchaCodesList = captchaCodeRepository.findAll();
     checkCaptchaCodes(captchaCodesList);

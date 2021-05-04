@@ -1,7 +1,8 @@
 package main.controller;
 
+import javax.validation.constraints.Pattern;
+import javax.validation.constraints.Size;
 import main.api.requset.LoginRequest;
-import main.api.requset.RegisterRequest;
 import main.api.response.CaptchaResponse;
 import main.api.response.CheckResponse;
 import main.api.response.LoginResponse;
@@ -17,7 +18,9 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.User;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -54,10 +57,18 @@ public class ApiAuthController {
     return captchaService.getCaptcha();
   }
 
-  @PostMapping("/register")
-  public RegisterResponse register(@RequestBody RegisterRequest registerRequest) {
+  @PostMapping("/register/{email}")
+  @Validated
+  public RegisterResponse register(
+      @PathVariable("email") @Pattern(regexp = "^[_A-Za-z0-9-\\+]+(\\.[_A-Za-z0-9-]+)*@[A-Za-z0-9-]+(\\.[A-Za-z0-9]+)*(\\.[A-Za-z]{2,})$")
+          String email,
+      @PathVariable("password") @Size(min = 6, message = "Пароль короче 6-ти символов")
+          String password,
+      @PathVariable("name") @Pattern(regexp = "^(?=.{8,20}$)(?![_.])(?!.*[_.]{2})[a-zA-Z0-9._]+(?<![_.])$")
+          String name,
+      String captcha, String captchaSecret) {
 
-    return registerService.register(registerRequest);
+    return registerService.register(email, password, name, captcha, captchaSecret);
   }
 
   @PostMapping("/login")

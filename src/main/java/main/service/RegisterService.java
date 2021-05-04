@@ -1,7 +1,8 @@
 package main.service;
 
 import java.util.Date;
-import main.api.requset.RegisterRequest;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import main.api.response.ErrorsResponse;
 import main.api.response.RegisterResponse;
 import main.model.CaptchaCodes;
@@ -16,7 +17,6 @@ public class RegisterService {
 
   private final UserRepository userRepository;
   private final CaptchaCodeRepository captchaCodeRepository;
-  private final int MIN_LENGTH = 6;
 
   private ErrorsResponse errorsResponse = new ErrorsResponse();
   private RegisterResponse registerResponse = new RegisterResponse();
@@ -28,34 +28,34 @@ public class RegisterService {
     this.captchaCodeRepository = captchaCodeRepository;
   }
 
-  public RegisterResponse register(RegisterRequest registerRequest) {
+  public RegisterResponse register(String email, String password, String name,
+      String captcha, String captchaSecret) {
 
     CaptchaCodes repoCaptcha = captchaCodeRepository
-        .findBySecret(registerRequest.getCaptchaSecret());
+        .findBySecret(captchaSecret);
 
-    boolean dataCorrect = (checkCaptcha(registerRequest, repoCaptcha) && (checkEmail(
-        registerRequest)) && (checkPassword(registerRequest)));
+    boolean dataCorrect = (checkCaptcha(captcha, repoCaptcha) && (checkEmail(email)));
 
     if (dataCorrect) {
       User user = new User();
 
-      user.setEmail(registerRequest.getEmail());
-      user.setName(registerRequest.getName());
-      user.setPassword(registerRequest.getPassword());
+      user.setEmail(email);
+      user.setName(name);
+      user.setPassword(password);
       user.setIsModerator(0);
       user.setRegTime(new Date());
 
       userRepository.save(user);
       registerResponse.setResult(true);
     } else {
-      if (!checkEmail(registerRequest)) {
+      if (!checkEmail(email)) {
         errorsResponse.setEmail("Этот email уже зарегестрирован");
       }
-      if (!checkPassword(registerRequest)) {
-        errorsResponse.setPassword("Пароль короче 6-ти символов");
-      }
-      if (!checkCaptcha(registerRequest, repoCaptcha)) {
+      if (!checkCaptcha(captcha, repoCaptcha)) {
         errorsResponse.setCaptcha("Код с картинки введен неверно");
+      }
+      if (!checkName(name)) {
+        errorsResponse.setName("Имя указано неверно");
       }
       registerResponse.setResult(false);
       registerResponse.setErrors(errorsResponse);
@@ -63,19 +63,17 @@ public class RegisterService {
     return registerResponse;
   }
 
-  private boolean checkCaptcha(RegisterRequest registerRequest, CaptchaCodes repoCaptcha) {
+  private boolean checkCaptcha(String captcha, CaptchaCodes repoCaptcha) {
     boolean check = true;
-    boolean captchaCorrect = registerRequest.getCaptcha()
-        .equals(repoCaptcha.getCode()); // не корректная проверка
+    boolean captchaCorrect = captcha.equals(repoCaptcha.getCode());
     if (!captchaCorrect) {
       check = false;
     }
     return check;
   }
 
-  private boolean checkEmail(RegisterRequest registerRequest) {
+  private boolean checkEmail(String email) {
     boolean check = true;
-    String email = registerRequest.getEmail();
     User repoUser = userRepository.findByEmail(email);
     if (repoUser.getEmail().equals(email)) {
       check = false;
@@ -83,12 +81,11 @@ public class RegisterService {
     return check;
   }
 
-  private boolean checkPassword(RegisterRequest registerRequest) {
-    boolean check = true;
-    String password = registerRequest.getPassword();
-    if (password.length() < MIN_LENGTH) {
-      check = false;
-    }
+  private boolean checkName(String name) {
+    Pattern pattern = Pattern.compile("^(?=.{8,20}$)(?![_.])(?!.*[_.]{2})[a-zA-Z0-9._]+(?<![_.])$");
+    Matcher matcher = pattern.matcher(name);
+    boolean check = matcher.matches();
+
     return check;
   }
 }
