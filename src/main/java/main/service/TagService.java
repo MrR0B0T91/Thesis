@@ -24,9 +24,8 @@ public class TagService {
     this.tagRepository = tagRepository;
   }
 
-  public TagResponse getTags(String name) {
+  public TagResponse getTags() {
 
-    List<Tags> namedTag = tagRepository.findByName(name); //находим все тэги по имени
     List<Tags> tagsList = tagRepository.findAll(); // все тэги
 
     for (Tags tagName : tagsList) {
@@ -35,7 +34,7 @@ public class TagService {
     }
 
     int maxValue = Collections
-        .max(tagsWithName.values()); //находим значение самого популярного тэга
+        .max(tagsWithName.values()); //находим кол-во самого популярного тэга
 
     for (Tags tag : tagsList) {
       TagDto tagDto = new TagDto();
@@ -44,8 +43,8 @@ public class TagService {
       double weights = tagsList.size(); // общее кол-во тэгов
       double dWeightSomeTag = singleTagValue / weights; // ненормированный вес
       double dWeightMax = maxValue / weights; // ненормированный вес максимального тэга
-      double k = 1 / dWeightMax; // коэффициент к
-      double tagWeight = dWeightSomeTag * k;
+      double k = 1 / dWeightMax; // коэффициент k
+      double tagWeight = dWeightSomeTag * k; // нормированный вес тэга
 
       tagDto.setName(tag.getName());
       tagDto.setWeight(tagWeight);

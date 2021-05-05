@@ -43,7 +43,7 @@ public class ApiGeneralController {
   @GetMapping("/tag")
   private TagResponse tags(
       @RequestParam(value = "query", defaultValue = "") String name) {
-    return tagService.getTags(name);
+    return tagService.getTags();
   }
 
   @GetMapping("/calendar")
