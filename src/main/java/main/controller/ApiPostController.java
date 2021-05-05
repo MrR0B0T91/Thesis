@@ -31,7 +31,6 @@ public class ApiPostController {
   }
 
   @GetMapping("/search")
-  @PreAuthorize("hasAuthority('user:write')")
   public PostResponse postSearch(
       @RequestParam(value = "offset", defaultValue = "0") int offset,
       @RequestParam(value = "limit", defaultValue = "10") int limit,
@@ -41,7 +40,6 @@ public class ApiPostController {
   }
 
   @GetMapping("/byDate")
-  @PreAuthorize("hasAuthority('user:write')")
   public PostResponse searchByDate(@RequestParam(value = "offset", defaultValue = "0") int offset,
       @RequestParam(value = "limit", defaultValue = "10") int limit,
       @RequestParam(value = "date") String date) {
@@ -50,7 +48,6 @@ public class ApiPostController {
   }
 
   @GetMapping("/byTag")
-  @PreAuthorize("hasAuthority('user:write')")
   public PostResponse searchByTag(@RequestParam(value = "offset", defaultValue = "0") int offset,
       @RequestParam(value = "limit", defaultValue = "10") int limit,
       @RequestParam(value = "tag") String tag) {
@@ -59,7 +56,6 @@ public class ApiPostController {
   }
 
   @GetMapping("/{id}")
-  @PreAuthorize("hasAuthority('user:write')")
   public PostByIdResponse getPostById(@PathVariable int id) {
 
     return postService.getPostById(id);
