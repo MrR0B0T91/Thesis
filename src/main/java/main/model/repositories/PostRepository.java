@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Optional;
 import main.model.ModerationStatus;
 import main.model.Posts;
+import main.model.User;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -94,4 +95,48 @@ public interface PostRepository extends JpaRepository<Posts, Integer> {
           + "GROUP BY p.id")
   Page<Posts> findModeratedPosts(@Param("id") int id, @Param("STATUS") ModerationStatus status,
       Pageable pageable);
+
+  @Query(
+      "SELECT p "
+          + "FROM Posts p "
+          + "LEFT JOIN User u ON u.id = p.user "
+          + "LEFT JOIN PostVotes pv1 ON p.id = pv1.postId AND pv1.value = 1 "
+          + "LEFT JOIN PostVotes pv2 ON p.id = pv2.postId AND pv2.value = -1 "
+          + "LEFT JOIN PostComments pc ON p.id = pc.postId "
+          + "WHERE p.isActive = 0 AND p.user = :user "
+          + "GROUP BY p.id")
+  Page<Posts> findInactivePosts(@Param("user") User user, Pageable pageable);
+
+  @Query(
+      "SELECT p "
+          + "FROM Posts p "
+          + "LEFT JOIN User u ON u.id = p.user "
+          + "LEFT JOIN PostVotes pv1 ON p.id = pv1.postId AND pv1.value = 1 "
+          + "LEFT JOIN PostVotes pv2 ON p.id = pv2.postId AND pv2.value = -1 "
+          + "LEFT JOIN PostComments pc ON p.id = pc.postId "
+          + "WHERE p.isActive = 1 AND p.user = :user AND p.moderationStatus = 'NEW' "
+          + "GROUP BY p.id")
+  Page<Posts> findPendingPosts(@Param("user") User user, Pageable pageable);
+
+  @Query(
+      "SELECT p "
+          + "FROM Posts p "
+          + "LEFT JOIN User u ON u.id = p.user "
+          + "LEFT JOIN PostVotes pv1 ON p.id = pv1.postId AND pv1.value = 1 "
+          + "LEFT JOIN PostVotes pv2 ON p.id = pv2.postId AND pv2.value = -1 "
+          + "LEFT JOIN PostComments pc ON p.id = pc.postId "
+          + "WHERE p.isActive = 1 AND p.user = :user AND p.moderationStatus = 'DECLINED' "
+          + "GROUP BY p.id")
+  Page<Posts> findDeclinedPosts(@Param("user") User user, Pageable pageable);
+
+  @Query(
+      "SELECT p "
+          + "FROM Posts p "
+          + "LEFT JOIN User u ON u.id = p.user "
+          + "LEFT JOIN PostVotes pv1 ON p.id = pv1.postId AND pv1.value = 1 "
+          + "LEFT JOIN PostVotes pv2 ON p.id = pv2.postId AND pv2.value = -1 "
+          + "LEFT JOIN PostComments pc ON p.id = pc.postId "
+          + "WHERE p.isActive = 1 AND p.user = :user AND p.moderationStatus = 'ACCEPTED' "
+          + "GROUP BY p.id")
+  Page<Posts> findPublishedPosts(@Param("user") User user, Pageable pageable);
 }

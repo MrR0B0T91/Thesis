@@ -6,6 +6,7 @@ import main.api.requset.LoginRequest;
 import main.api.response.CaptchaResponse;
 import main.api.response.CheckResponse;
 import main.api.response.LoginResponse;
+import main.api.response.LogoutResponse;
 import main.api.response.RegisterResponse;
 import main.api.response.UserLoginResponse;
 import main.model.repositories.UserRepository;
@@ -13,6 +14,7 @@ import main.service.CaptchaService;
 import main.service.CheckService;
 import main.service.RegisterService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -48,7 +50,7 @@ public class ApiAuthController {
   }
 
   @GetMapping("/check")
-  private CheckResponse check() {
+  public CheckResponse check() {
     return checkService.getResult();
   }
 
@@ -96,5 +98,15 @@ public class ApiAuthController {
     loginResponse.setUserLoginResponse(userLoginResponse);
 
     return loginResponse;
+  }
+
+  @GetMapping("/logout")
+  @PreAuthorize("hasAuthority('user:write')")
+  public LogoutResponse logout() {
+    LogoutResponse logoutResponse = new LogoutResponse();
+    logoutResponse.setResult(true);
+    SecurityContextHolder.getContext().setAuthentication(null);
+
+    return logoutResponse;
   }
 }

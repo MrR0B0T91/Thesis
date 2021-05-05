@@ -819,6 +819,158 @@ databaseChangeLog:
             tableName: posts
 
   - changeSet:
+      id: insertPosts5
+      author: dima_pak
+      changes:
+        - insert:
+            catalogName: thesis
+            columns:
+              - column:
+                  name: id
+                  value: 6
+              - column:
+                  name: is_active
+                  value: 0
+              - column:
+                  name: moderation_status
+                  value: "NEW"
+              - column:
+                  name: moderator_id
+                  value: 3
+              - column:
+                  name: user_id
+                  value: 5
+              - column:
+                  name: time
+                  value: '2021-05-05 16:22:32'
+              - column:
+                  name: title
+                  value: "Invincible"
+              - column:
+                  name: text
+                  value: "Awesome adult cartoon 18+, lots of violence"
+              - column:
+                  name: view_count
+                  value: 200
+            dbms: '!h2,  mysql'
+            schemaName: postTable
+            tableName: posts
+
+  - changeSet:
+      id: insertPosts6
+      author: dima_pak
+      changes:
+        - insert:
+            catalogName: thesis
+            columns:
+              - column:
+                  name: id
+                  value: 7
+              - column:
+                  name: is_active
+                  value: 1
+              - column:
+                  name: moderation_status
+                  value: "NEW"
+              - column:
+                  name: moderator_id
+                  value: 3
+              - column:
+                  name: user_id
+                  value: 5
+              - column:
+                  name: time
+                  value: '2021-05-03 11:30:32'
+              - column:
+                  name: title
+                  value: "Scrubs"
+              - column:
+                  name: text
+                  value: "It's super iconic tv show. Entertainment and interesting thoughts in same time"
+              - column:
+                  name: view_count
+                  value: 300
+            dbms: '!h2,  mysql'
+            schemaName: postTable
+            tableName: posts
+
+  - changeSet:
+      id: insertPosts7
+      author: dima_pak
+      changes:
+        - insert:
+            catalogName: thesis
+            columns:
+              - column:
+                  name: id
+                  value: 8
+              - column:
+                  name: is_active
+                  value: 1
+              - column:
+                  name: moderation_status
+                  value: "DECLINED"
+              - column:
+                  name: moderator_id
+                  value: 3
+              - column:
+                  name: user_id
+                  value: 5
+              - column:
+                  name: time
+                  value: '2021-05-01 22:59:32'
+              - column:
+                  name: title
+                  value: "Justice League"
+              - column:
+                  name: text
+                  value: "Stupid f***ing uninteresting movie, just waste of time"
+              - column:
+                  name: view_count
+                  value: 0
+            dbms: '!h2,  mysql'
+            schemaName: postTable
+            tableName: posts
+
+  - changeSet:
+      id: insertPosts8
+      author: dima_pak
+      changes:
+        - insert:
+            catalogName: thesis
+            columns:
+              - column:
+                  name: id
+                  value: 9
+              - column:
+                  name: is_active
+                  value: 1
+              - column:
+                  name: moderation_status
+                  value: "ACCEPTED"
+              - column:
+                  name: moderator_id
+                  value: 3
+              - column:
+                  name: user_id
+                  value: 5
+              - column:
+                  name: time
+                  value: '2021-05-02 09:17:21'
+              - column:
+                  name: title
+                  value: "The Dark Knight"
+              - column:
+                  name: text
+                  value: "I think it's the best Batman movie so far. Heath Ledger performed Joker perfectly"
+              - column:
+                  name: view_count
+                  value: 350
+            dbms: '!h2,  mysql'
+            schemaName: postTable
+            tableName: posts
+
+  - changeSet:
       id: insertPostVotes1
       author: dima_pak
       changes:

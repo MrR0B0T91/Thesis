@@ -69,4 +69,12 @@ public class ApiPostController {
       @RequestParam(value = "status", defaultValue = "NEW") ModerationStatus status) {
     return postService.getModerationPosts(offset, limit, status);
   }
+
+  @GetMapping("/my")
+  @PreAuthorize("hasAuthority('user:write')")
+  public PostResponse myPosts(@RequestParam(value = "offset", defaultValue = "0") int offset,
+      @RequestParam(value = "limit", defaultValue = "10") int limit,
+      @RequestParam(value = "status") String status){
+    return postService.getMyPosts(offset, limit, status);
+  }
 }

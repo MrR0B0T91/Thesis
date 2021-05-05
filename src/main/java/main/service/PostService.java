@@ -321,6 +321,55 @@ public class PostService {
     return postResponse;
   }
 
+  public PostResponse getMyPosts(int offset, int limit, String status) {
+
+    Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+    User user = (User) authentication.getPrincipal();
+    main.model.User currentUser = userRepository.findByEmail(user.getUsername());
+
+    if (status.equals("inactive")) {
+      sort = Sort.by("time").descending();
+      Page<Posts> inActivePosts = postRepository
+          .findInactivePosts(currentUser, getSortedPaging(offset, limit, sort));
+      List<Posts> postsList = inActivePosts.getContent();
+      List<PostDto> postDtoList =
+          postsList.stream().map(this::entityToDto).collect(Collectors.toList());
+      postResponse.setCount(inActivePosts.getTotalElements());
+      postResponse.setPosts(postDtoList);
+    }
+    if (status.equals("pending")) {
+      sort = Sort.by("time").descending();
+      Page<Posts> pendingPosts = postRepository
+          .findPendingPosts(currentUser, getSortedPaging(offset, limit, sort));
+      List<Posts> postsList = pendingPosts.getContent();
+      List<PostDto> postDtoList =
+          postsList.stream().map(this::entityToDto).collect(Collectors.toList());
+      postResponse.setCount(pendingPosts.getTotalElements());
+      postResponse.setPosts(postDtoList);
+    }
+    if (status.equals("declined")) {
+      sort = Sort.by("time").descending();
+      Page<Posts> declinedPosts = postRepository
+          .findDeclinedPosts(currentUser, getSortedPaging(offset, limit, sort));
+      List<Posts> postsList = declinedPosts.getContent();
+      List<PostDto> postDtoList =
+          postsList.stream().map(this::entityToDto).collect(Collectors.toList());
+      postResponse.setCount(declinedPosts.getTotalElements());
+      postResponse.setPosts(postDtoList);
+    }
+    if (status.equals("published")) {
+      sort = Sort.by("time").descending();
+      Page<Posts> publishedPosts = postRepository
+          .findPublishedPosts(currentUser, getSortedPaging(offset, limit, sort));
+      List<Posts> postsList = publishedPosts.getContent();
+      List<PostDto> postDtoList =
+          postsList.stream().map(this::entityToDto).collect(Collectors.toList());
+      postResponse.setCount(publishedPosts.getTotalElements());
+      postResponse.setPosts(postDtoList);
+    }
+    return postResponse;
+  }
+
   private PostDto entityToDto(Posts post) {
 
     PostDto postDto = new PostDto();
