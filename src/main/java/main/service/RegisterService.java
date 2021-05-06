@@ -43,11 +43,11 @@ public class RegisterService {
       User user = new User();
       String encodedPassword = passwordEncoder.encode(password);
 
-      user.setEmail(email);
-      user.setName(name);
-      user.setPassword(encodedPassword);
       user.setIsModerator(0);
       user.setRegTime(new Date());
+      user.setName(name);
+      user.setEmail(email);
+      user.setPassword(encodedPassword);
 
       userRepository.save(user);
       registerResponse.setResult(true);
@@ -69,28 +69,18 @@ public class RegisterService {
   }
 
   private boolean checkCaptcha(String captcha, CaptchaCodes repoCaptcha) {
-    boolean check = true;
-    boolean captchaCorrect = captcha.equals(repoCaptcha.getCode());
-    if (!captchaCorrect) {
-      check = false;
-    }
-    return check;
+    return captcha.equals(repoCaptcha.getCode());
   }
 
   private boolean checkEmail(String email) {
-    boolean check = true;
     User repoUser = userRepository.findByEmail(email);
-    if (repoUser.getEmail().equals(email)) {
-      check = false;
-    }
-    return check;
+    return repoUser.getEmail().equals(email);
   }
 
   private boolean checkName(String name) {
     Pattern pattern = Pattern.compile("^(?=.{8,20}$)(?![_.])(?!.*[_.]{2})[a-zA-Z0-9._]+(?<![_.])$");
     Matcher matcher = pattern.matcher(name);
-    boolean check = matcher.matches();
 
-    return check;
+    return matcher.matches();
   }
 }
