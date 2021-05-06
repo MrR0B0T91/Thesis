@@ -15,13 +15,13 @@ public class TagService {
 
   private final TagRepository tagRepository;
 
-  List<TagDto> tagDtoList = new ArrayList<>();
-
   public TagService(TagRepository tagRepository) {
     this.tagRepository = tagRepository;
   }
 
   public TagResponse getTags() {
+
+    List<TagDto> tagDtoList = new ArrayList<>();
 
     TagResponse tagResponse = new TagResponse();
     HashMap<Tags, Integer> tagsWithName = new HashMap<>();
