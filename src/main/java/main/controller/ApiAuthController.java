@@ -55,7 +55,7 @@ public class ApiAuthController {
   }
 
   @GetMapping("/captcha")
-  private CaptchaResponse captcha() {
+  public CaptchaResponse captcha() {
     return captchaService.getCaptcha();
   }
 

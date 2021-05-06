@@ -10,6 +10,8 @@ import main.model.User;
 import main.model.repositories.CaptchaCodeRepository;
 import main.model.repositories.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -17,9 +19,6 @@ public class RegisterService {
 
   private final UserRepository userRepository;
   private final CaptchaCodeRepository captchaCodeRepository;
-
-  private ErrorsResponse errorsResponse = new ErrorsResponse();
-  private RegisterResponse registerResponse = new RegisterResponse();
 
   @Autowired
   public RegisterService(UserRepository userRepository,
@@ -31,6 +30,10 @@ public class RegisterService {
   public RegisterResponse register(String email, String password, String name,
       String captcha, String captchaSecret) {
 
+    ErrorsResponse errorsResponse = new ErrorsResponse();
+    RegisterResponse registerResponse = new RegisterResponse();
+    PasswordEncoder passwordEncoder = new BCryptPasswordEncoder(12);
+
     CaptchaCodes repoCaptcha = captchaCodeRepository
         .findBySecret(captchaSecret);
 
@@ -38,15 +41,17 @@ public class RegisterService {
 
     if (dataCorrect) {
       User user = new User();
+      String encodedPassword = passwordEncoder.encode(password);
 
       user.setEmail(email);
       user.setName(name);
-      user.setPassword(password);
+      user.setPassword(encodedPassword);
       user.setIsModerator(0);
       user.setRegTime(new Date());
 
       userRepository.save(user);
       registerResponse.setResult(true);
+
     } else {
       if (!checkEmail(email)) {
         errorsResponse.setEmail("Этот email уже зарегестрирован");

@@ -14,9 +14,6 @@ import org.springframework.stereotype.Service;
 public class TagService {
 
   private final TagRepository tagRepository;
-  private final TagResponse tagResponse = new TagResponse();
-  private final HashMap<Tags, Integer> tagsWithName = new HashMap<>();
-
 
   List<TagDto> tagDtoList = new ArrayList<>();
 
@@ -25,6 +22,9 @@ public class TagService {
   }
 
   public TagResponse getTags() {
+
+    TagResponse tagResponse = new TagResponse();
+    HashMap<Tags, Integer> tagsWithName = new HashMap<>();
 
     List<Tags> tagsList = tagRepository.findAll(); // все тэги
 

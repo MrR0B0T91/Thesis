@@ -42,10 +42,6 @@ public class PostService {
   private Sort sort;
   private final Integer MAX_LENGTH = 150;
 
-  private PostResponse postResponse = new PostResponse();
-  private CalendarResponse calendarResponse = new CalendarResponse();
-  private PostByIdResponse postByIdResponse = new PostByIdResponse();
-
   public PostService(PostRepository postRepository,
       UserRepository userRepository) {
     this.postRepository = postRepository;
@@ -54,6 +50,8 @@ public class PostService {
   }
 
   public PostResponse getPosts(int offset, int limit, String mode) {
+
+    PostResponse postResponse = new PostResponse();
 
     if (mode.equals("recent")) {
       sort = Sort.by("time").descending();
@@ -94,6 +92,8 @@ public class PostService {
 
   public PostResponse getPost(int offset, int limit, String query) {
 
+    PostResponse postResponse = new PostResponse();
+
     if (query.isEmpty()) {
       sort = Sort.by("time").descending();
       Page<Posts> recentPage = postRepository.findAll(getSortedPaging(offset, limit, sort));
@@ -117,6 +117,7 @@ public class PostService {
 
     List<Integer> years = new ArrayList<>();
     HashMap<String, Integer> posts = new HashMap<>();
+    CalendarResponse calendarResponse = new CalendarResponse();
 
     Calendar currentDate = Calendar.getInstance();
 
@@ -165,6 +166,8 @@ public class PostService {
   public PostResponse getPostsByDate(int offset, int limit,
       String date) {
 
+    PostResponse postResponse = new PostResponse();
+
     sort = Sort.by("time").descending();
     Page<Posts> page = postRepository.findAll(getSortedPaging(offset, limit, sort));
     List<Posts> postsList = page.getContent();
@@ -188,6 +191,9 @@ public class PostService {
   }
 
   public PostResponse getPostsByTag(int offset, int limit, String tag) {
+
+    PostResponse postResponse = new PostResponse();
+
     sort = Sort.by("time").descending();
     Page<Posts> tagPage = postRepository.findAll(getSortedPaging(offset, limit, sort));
     List<Posts> postsWithTagList = tagPage.getContent();
@@ -212,6 +218,8 @@ public class PostService {
   }
 
   public PostByIdResponse getPostById(int id) {
+
+    PostByIdResponse postByIdResponse = new PostByIdResponse();
 
     Optional<Posts> optionalPost = postRepository.findPostById(id);
     if (optionalPost.isPresent()) {
@@ -305,6 +313,8 @@ public class PostService {
 
   public PostResponse getModerationPosts(int offset, int limit, ModerationStatus status) {
 
+    PostResponse postResponse = new PostResponse();
+
     Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
     User user = (User) authentication.getPrincipal();
     main.model.User currentUser = userRepository.findByEmail(user.getUsername());
@@ -322,6 +332,8 @@ public class PostService {
   }
 
   public PostResponse getMyPosts(int offset, int limit, String status) {
+
+    PostResponse postResponse = new PostResponse();
 
     Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
     User user = (User) authentication.getPrincipal();

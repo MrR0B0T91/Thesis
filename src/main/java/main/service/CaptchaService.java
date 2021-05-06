@@ -2,8 +2,6 @@ package main.service;
 
 import com.github.cage.Cage;
 import com.github.cage.GCage;
-import java.awt.image.BufferedImage;
-import java.awt.image.DataBufferByte;
 import java.util.Base64;
 import java.util.Calendar;
 import java.util.List;
@@ -22,24 +20,24 @@ public class CaptchaService {
     this.captchaCodeRepository = captchaCodeRepository;
   }
 
-  private CaptchaResponse captchaResponse = new CaptchaResponse();
-
   public CaptchaResponse getCaptcha() {
+
+    CaptchaResponse captchaResponse = new CaptchaResponse();
 
     String secret = generateSecret(22);
     captchaResponse.setSecret(secret);
 
     Cage cage = new GCage();
     String token = cage.getTokenGenerator().next();
-    BufferedImage bufferedImage = cage.drawImage(token);
-    byte[] imageBytes = ((DataBufferByte) bufferedImage.getData().getDataBuffer()).getData();
-    String encodedString = Base64
+    byte[] byteImage = cage.draw(token);
+    String encoded = Base64
         .getEncoder()
-        .encodeToString(imageBytes);
-    String image = "data:image/png;base64, " + encodedString;
+        .encodeToString(byteImage);
+    String image = "data:image/png;base64, " + encoded;
     captchaResponse.setImage(image);
 
     CaptchaCodes captcha = new CaptchaCodes();
+
     Calendar currentDate = Calendar.getInstance();
     captcha.setCode(token);
     captcha.setSecretCode(secret);
