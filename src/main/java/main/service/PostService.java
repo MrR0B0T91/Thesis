@@ -45,7 +45,9 @@ public class PostService {
   private final TagRepository tagRepository;
 
   private Sort sort;
-  private final Integer MAX_LENGTH = 150;
+  private final int MAX_LENGTH = 150;
+  private final int MIN_TITLE_LENGTH = 3;
+  private final int MIN_TEXT_LENGTH = 10;
 
   public PostService(PostRepository postRepository,
       UserRepository userRepository, TagRepository tagRepository) {
@@ -397,11 +399,12 @@ public class PostService {
     Posts post = new Posts();
     PostErrorResponse postErrorResponse = new PostErrorResponse();
 
-    if ((postRequest.getTitle().length() < 3) || (postRequest.getText().length() < 10)) {
-      if (postRequest.getTitle().length() < 3) {
+    if ((postRequest.getTitle().length() < MIN_TITLE_LENGTH) || (postRequest.getText().length()
+        < MIN_TEXT_LENGTH)) {
+      if (postRequest.getTitle().length() < MIN_TITLE_LENGTH) {
         postErrorResponse.setTitle("Заголовок не установлен");
       }
-      if (postRequest.getText().length() < 50) {
+      if (postRequest.getText().length() < MIN_TEXT_LENGTH) {
         postErrorResponse.setText("Текст публикации слишком крорткий");
       }
       postingResponse.setResult(false);
@@ -430,6 +433,64 @@ public class PostService {
         tagList.add(tag);
       }
       post.setTagsList(tagList);
+
+      postRepository.save(post);
+      postingResponse.setResult(true);
+    }
+    return postingResponse;
+  }
+
+  public PostingResponse updatePost(int id, PostRequest postRequest) {
+    Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+    User user = (User) authentication.getPrincipal();
+    main.model.User currentUser = userRepository.findByEmail(user.getUsername());
+
+    PostingResponse postingResponse = new PostingResponse();
+    Posts post = postRepository.findById(id);
+    PostErrorResponse postErrorResponse = new PostErrorResponse();
+
+    if ((postRequest.getTitle().length() < MIN_TITLE_LENGTH) || (postRequest.getText().length()
+        < MIN_TEXT_LENGTH)) {
+      if (postRequest.getTitle().length() < MIN_TITLE_LENGTH) {
+        postErrorResponse.setTitle("Заголовок не установлен");
+      }
+      if (postRequest.getText().length() < MIN_TEXT_LENGTH) {
+        postErrorResponse.setText("Текст публикации слишком крорткий");
+      }
+      postingResponse.setResult(false);
+      postingResponse.setErrors(postErrorResponse);
+    } else {
+
+      Calendar currentTime = Calendar.getInstance();
+      Calendar postTime = Calendar.getInstance();
+      postTime.setTimeInMillis(postRequest.getTimestamp());
+
+      if (postTime.before(currentTime)) {
+        post.setTime(currentTime);
+      } else {
+        post.setTime(postTime);
+      }
+      post.setIsActive(postRequest.getActive());
+      post.setTitle(postRequest.getTitle());
+      post.setText(postRequest.getText());
+      post.setUser(currentUser);
+      List<String> stringTags = postRequest.getTags();
+      List<Tags> tagList = new ArrayList<>();
+      for (String tagName : stringTags) {
+        Tags tag = new Tags();
+        tag.setName(tagName);
+        tagList.add(tag);
+      }
+      post.setTagsList(tagList);
+
+      boolean isAuthor = currentUser.getName().equals(post.getUser().getName());
+      boolean isModerator = currentUser.getIsModerator() == 1;
+      if (isAuthor) {
+        post.setModerationStatus(ModerationStatus.NEW);
+      }
+      if (isModerator) {
+        post.setModerationStatus(post.getModerationStatus());
+      }
 
       postRepository.save(post);
       postingResponse.setResult(true);
