@@ -9,9 +9,12 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import main.api.requset.PostRequest;
 import main.api.response.CalendarResponse;
 import main.api.response.PostByIdResponse;
+import main.api.response.PostErrorResponse;
 import main.api.response.PostResponse;
+import main.api.response.PostingResponse;
 import main.dto.CommentDto;
 import main.dto.CommentUserDto;
 import main.dto.PostDto;
@@ -22,6 +25,7 @@ import main.model.PostVotes;
 import main.model.Posts;
 import main.model.Tags;
 import main.model.repositories.PostRepository;
+import main.model.repositories.TagRepository;
 import main.model.repositories.UserRepository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -38,15 +42,17 @@ public class PostService {
 
   private final PostRepository postRepository;
   private final UserRepository userRepository;
+  private final TagRepository tagRepository;
 
   private Sort sort;
   private final Integer MAX_LENGTH = 150;
 
   public PostService(PostRepository postRepository,
-      UserRepository userRepository) {
+      UserRepository userRepository, TagRepository tagRepository) {
     this.postRepository = postRepository;
 
     this.userRepository = userRepository;
+    this.tagRepository = tagRepository;
   }
 
   public PostResponse getPosts(int offset, int limit, String mode) {
@@ -298,7 +304,7 @@ public class PostService {
       }
       postByIdResponse.setId(post.getId());
       postByIdResponse.setTimestamp(unixTime);
-      postByIdResponse.setActive(post.isActive());
+      postByIdResponse.setActive(post.getIsActive());
       postByIdResponse.setUser(userDtoForPost);
       postByIdResponse.setTitle(post.getTitle());
       postByIdResponse.setText(post.getText());
@@ -380,6 +386,55 @@ public class PostService {
       postResponse.setPosts(postDtoList);
     }
     return postResponse;
+  }
+
+  public PostingResponse makePost(PostRequest postRequest) {
+    Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+    User user = (User) authentication.getPrincipal();
+    main.model.User currentUser = userRepository.findByEmail(user.getUsername());
+
+    PostingResponse postingResponse = new PostingResponse();
+    Posts post = new Posts();
+    PostErrorResponse postErrorResponse = new PostErrorResponse();
+
+    if ((postRequest.getTitle().length() < 3) || (postRequest.getText().length() < 10)) {
+      if (postRequest.getTitle().length() < 3) {
+        postErrorResponse.setTitle("Заголовок не установлен");
+      }
+      if (postRequest.getText().length() < 50) {
+        postErrorResponse.setText("Текст публикации слишком крорткий");
+      }
+      postingResponse.setResult(false);
+      postingResponse.setErrors(postErrorResponse);
+    } else {
+
+      Calendar currentTime = Calendar.getInstance();
+      Calendar postTime = Calendar.getInstance();
+      postTime.setTimeInMillis(postRequest.getTimestamp());
+
+      if (postTime.before(currentTime)) {
+        post.setTime(currentTime);
+      } else {
+        post.setTime(postTime);
+      }
+      post.setIsActive(postRequest.getActive());
+      post.setTitle(postRequest.getTitle());
+      post.setText(postRequest.getText());
+      post.setModerationStatus(ModerationStatus.NEW);
+      post.setUser(currentUser);
+      List<String> stringTags = postRequest.getTags();
+      List<Tags> tagList = new ArrayList<>();
+      for (String tagName : stringTags) {
+        Tags tag = new Tags();
+        tag.setName(tagName);
+        tagList.add(tag);
+      }
+      post.setTagsList(tagList);
+
+      postRepository.save(post);
+      postingResponse.setResult(true);
+    }
+    return postingResponse;
   }
 
   private PostDto entityToDto(Posts post) {

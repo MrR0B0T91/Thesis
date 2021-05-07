@@ -29,7 +29,7 @@ public class Posts {
   private int id;
 
   @Column(name = "is_active", nullable = false, columnDefinition = "TINYINT")
-  private boolean isActive;
+  private int isActive;
 
   @Enumerated(EnumType.STRING)
   @Column(columnDefinition = "enum")
