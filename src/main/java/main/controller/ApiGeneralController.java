@@ -1,13 +1,18 @@
 package main.controller;
 
+import main.api.requset.CommentRequest;
 import main.api.response.CalendarResponse;
+import main.api.response.CommentResponse;
 import main.api.response.InitResponse;
 import main.api.response.SettingsResponse;
 import main.api.response.TagResponse;
 import main.service.PostService;
 import main.service.SettingsService;
 import main.service.TagService;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -31,24 +36,31 @@ public class ApiGeneralController {
   }
 
   @GetMapping("/init")
-  private InitResponse init() {
+  public InitResponse init() {
     return initResponse;
   }
 
   @GetMapping("/settings")
-  private SettingsResponse settings() {
+  public SettingsResponse settings() {
     return settingsService.getGlobalSettings();
   }
 
   @GetMapping("/tag")
-  private TagResponse tags(
+  public TagResponse tags(
       @RequestParam(value = "query", defaultValue = "") String name) {
     return tagService.getTags();
   }
 
   @GetMapping("/calendar")
-  private CalendarResponse postsByYear(
+  public CalendarResponse postsByYear(
       @RequestParam(value = "year", defaultValue = "") String year) {
     return postService.getPostsByYear(year);
+  }
+
+  @PostMapping("/comment")
+  @PreAuthorize(("hasAuthority('user:write')"))
+  public CommentResponse comment(@RequestBody CommentRequest commentRequest) {
+
+    return postService.postComment(commentRequest);
   }
 }

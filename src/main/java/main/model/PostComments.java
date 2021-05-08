@@ -17,7 +17,7 @@ import lombok.Data;
 public class PostComments {
 
   @Id
-  @GeneratedValue(strategy = GenerationType.AUTO)
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
   private int id;
 
   @Column(name = "parent_id", columnDefinition = "INT")

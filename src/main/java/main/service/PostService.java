@@ -9,8 +9,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import main.api.requset.CommentRequest;
 import main.api.requset.PostRequest;
 import main.api.response.CalendarResponse;
+import main.api.response.CommentResponse;
 import main.api.response.PostByIdResponse;
 import main.api.response.PostErrorResponse;
 import main.api.response.PostResponse;
@@ -24,8 +26,8 @@ import main.model.PostComments;
 import main.model.PostVotes;
 import main.model.Posts;
 import main.model.Tags;
+import main.model.repositories.PostCommentRepository;
 import main.model.repositories.PostRepository;
-import main.model.repositories.TagRepository;
 import main.model.repositories.UserRepository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -42,7 +44,7 @@ public class PostService {
 
   private final PostRepository postRepository;
   private final UserRepository userRepository;
-  private final TagRepository tagRepository;
+  private final PostCommentRepository postCommentRepository;
 
   private Sort sort;
   private final int MAX_LENGTH = 150;
@@ -50,11 +52,11 @@ public class PostService {
   private final int MIN_TEXT_LENGTH = 10;
 
   public PostService(PostRepository postRepository,
-      UserRepository userRepository, TagRepository tagRepository) {
+      UserRepository userRepository,
+      PostCommentRepository postCommentRepository) {
     this.postRepository = postRepository;
-
     this.userRepository = userRepository;
-    this.tagRepository = tagRepository;
+    this.postCommentRepository = postCommentRepository;
   }
 
   public PostResponse getPosts(int offset, int limit, String mode) {
@@ -496,6 +498,30 @@ public class PostService {
       postingResponse.setResult(true);
     }
     return postingResponse;
+  }
+
+  public CommentResponse postComment(CommentRequest commentRequest) {
+    Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+    User user = (User) authentication.getPrincipal();
+    main.model.User currentUser = userRepository.findByEmail(user.getUsername());
+
+    CommentResponse commentResponse = new CommentResponse();
+    PostComments postComment = new PostComments();
+
+    int parentId = commentRequest.getParentId();
+    int postId = commentRequest.getPostId();
+    String commentText = commentRequest.getText();
+
+    postComment.setPostId(postId);
+    postComment.setParentId(parentId);
+    postComment.setUser(currentUser);
+    postComment.setTime(new Date());
+    postComment.setText(commentText);
+
+    postCommentRepository.save(postComment);
+    commentResponse.setId(postComment.getId());
+
+    return commentResponse;
   }
 
   private PostDto entityToDto(Posts post) {
