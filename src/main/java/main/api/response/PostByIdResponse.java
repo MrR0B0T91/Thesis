@@ -10,7 +10,7 @@ public class PostByIdResponse {
 
   private int id;
   private long timestamp;
-  private boolean active;
+  private int active;
   private UserDto user;
   private String title;
   private String text;

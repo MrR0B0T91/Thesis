@@ -1,8 +1,10 @@
 package main.service;
 
 import java.util.Date;
+import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import main.api.requset.RegisterRequest;
 import main.api.response.ErrorsResponse;
 import main.api.response.RegisterResponse;
 import main.model.CaptchaCodes;
@@ -27,39 +29,39 @@ public class RegisterService {
     this.captchaCodeRepository = captchaCodeRepository;
   }
 
-  public RegisterResponse register(String email, String password, String name,
-      String captcha, String captchaSecret) {
+  public RegisterResponse register(RegisterRequest registerRequest) {
 
     ErrorsResponse errorsResponse = new ErrorsResponse();
     RegisterResponse registerResponse = new RegisterResponse();
     PasswordEncoder passwordEncoder = new BCryptPasswordEncoder(12);
 
     CaptchaCodes repoCaptcha = captchaCodeRepository
-        .findBySecret(captchaSecret);
+        .findBySecret(registerRequest.getCaptchaSecret());
 
-    boolean dataCorrect = (checkCaptcha(captcha, repoCaptcha) && (checkEmail(email)));
+    boolean dataCorrect = (checkCaptcha(registerRequest.getCaptcha(), repoCaptcha) && (!checkEmail(
+        registerRequest.getEmail())));
 
     if (dataCorrect) {
       User user = new User();
-      String encodedPassword = passwordEncoder.encode(password);
+      String encodedPassword = passwordEncoder.encode(registerRequest.getPassword());
 
+      user.setEmail(registerRequest.getEmail());
+      user.setName(registerRequest.getName());
+      user.setPassword(encodedPassword);
       user.setIsModerator(0);
       user.setRegTime(new Date());
-      user.setName(name);
-      user.setEmail(email);
-      user.setPassword(encodedPassword);
 
       userRepository.save(user);
       registerResponse.setResult(true);
 
     } else {
-      if (!checkEmail(email)) {
+      if (checkEmail(registerRequest.getEmail())) {
         errorsResponse.setEmail("Этот email уже зарегестрирован");
       }
-      if (!checkCaptcha(captcha, repoCaptcha)) {
+      if (!checkCaptcha(registerRequest.getCaptcha(), repoCaptcha)) {
         errorsResponse.setCaptcha("Код с картинки введен неверно");
       }
-      if (!checkName(name)) {
+      if (!checkName(registerRequest.getName())) {
         errorsResponse.setName("Имя указано неверно");
       }
       registerResponse.setResult(false);
@@ -69,16 +71,21 @@ public class RegisterService {
   }
 
   private boolean checkCaptcha(String captcha, CaptchaCodes repoCaptcha) {
-    return captcha.equals(repoCaptcha.getCode());
+    boolean check = true;
+    boolean captchaCorrect = captcha.equals(repoCaptcha.getCode());
+    if (!captchaCorrect) {
+      check = false;
+    }
+    return check;
   }
 
   private boolean checkEmail(String email) {
-    User repoUser = userRepository.findByEmail(email);
-    return repoUser.getEmail().equals(email);
+    Optional<User> repoUser = userRepository.findUserByEmail(email);
+    return repoUser.map(user -> user.getEmail().equals(email)).orElse(false);
   }
 
   private boolean checkName(String name) {
-    Pattern pattern = Pattern.compile("^(?=.{8,20}$)(?![_.])(?!.*[_.]{2})[a-zA-Z0-9._]+(?<![_.])$");
+    Pattern pattern = Pattern.compile("^[\\p{L} .'-]+$");
     Matcher matcher = pattern.matcher(name);
 
     return matcher.matches();

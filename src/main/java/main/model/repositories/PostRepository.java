@@ -139,4 +139,10 @@ public interface PostRepository extends JpaRepository<Posts, Integer> {
           + "WHERE p.isActive = 1 AND p.user = :user AND p.moderationStatus = 'ACCEPTED' "
           + "GROUP BY p.id")
   Page<Posts> findPublishedPosts(@Param("user") User user, Pageable pageable);
+
+  @Query(
+      "SELECT p "
+          + "FROM Posts p "
+          + "WHERE p.id = :id")
+  Posts findById(@Param("id") int id);
 }
