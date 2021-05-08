@@ -1,8 +1,7 @@
 package main.controller;
 
-import javax.validation.constraints.Pattern;
-import javax.validation.constraints.Size;
 import main.api.requset.LoginRequest;
+import main.api.requset.RegisterRequest;
 import main.api.response.CaptchaResponse;
 import main.api.response.CheckResponse;
 import main.api.response.LoginResponse;
@@ -20,9 +19,7 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.User;
-import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -59,18 +56,10 @@ public class ApiAuthController {
     return captchaService.getCaptcha();
   }
 
-  @PostMapping("/register/{email}")
-  @Validated
-  public RegisterResponse register(
-      @PathVariable("email") @Pattern(regexp = "^[_A-Za-z0-9-\\+]+(\\.[_A-Za-z0-9-]+)*@[A-Za-z0-9-]+(\\.[A-Za-z0-9]+)*(\\.[A-Za-z]{2,})$")
-          String email,
-      @PathVariable("password") @Size(min = 6, message = "Пароль короче 6-ти символов")
-          String password,
-      @PathVariable("name") @Pattern(regexp = "^(?=.{8,20}$)(?![_.])(?!.*[_.]{2})[a-zA-Z0-9._]+(?<![_.])$")
-          String name,
-      String captcha, String captchaSecret) {
+  @PostMapping("/register")
+  public RegisterResponse register(@RequestBody RegisterRequest registerRequest) {
 
-    return registerService.register(email, password, name, captcha, captchaSecret);
+    return registerService.register(registerRequest);
   }
 
   @PostMapping("/login")
@@ -81,22 +70,25 @@ public class ApiAuthController {
     SecurityContextHolder.getContext().setAuthentication(auth);
 
     User user = (User) auth.getPrincipal();
-
     main.model.User currentUser = userRepository.findByEmail(user.getUsername());
 
     UserLoginResponse userLoginResponse = new UserLoginResponse();
     LoginResponse loginResponse = new LoginResponse();
 
-    userLoginResponse.setId(currentUser.getId());
-    userLoginResponse.setEmail(currentUser.getEmail());
-    userLoginResponse.setModeration(currentUser.getIsModerator() == 1);
-    userLoginResponse.setName(currentUser.getName());
-    userLoginResponse.setPhoto(currentUser.getPhoto());
-    userLoginResponse.setSettings(true);
+    if (currentUser == null) {
+      loginResponse.setResult(false);
+    } else {
 
-    loginResponse.setResult(true);
-    loginResponse.setUserLoginResponse(userLoginResponse);
+      userLoginResponse.setId(currentUser.getId());
+      userLoginResponse.setEmail(currentUser.getEmail());
+      userLoginResponse.setModeration(currentUser.getIsModerator() == 1);
+      userLoginResponse.setName(currentUser.getName());
+      userLoginResponse.setPhoto(currentUser.getPhoto());
+      userLoginResponse.setSettings(true);
 
+      loginResponse.setResult(true);
+      loginResponse.setUserLoginResponse(userLoginResponse);
+    }
     return loginResponse;
   }
 
