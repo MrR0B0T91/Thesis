@@ -7,18 +7,13 @@ import main.api.response.CheckResponse;
 import main.api.response.LoginResponse;
 import main.api.response.LogoutResponse;
 import main.api.response.RegisterResponse;
-import main.api.response.UserLoginResponse;
-import main.model.repositories.UserRepository;
 import main.service.CaptchaService;
 import main.service.CheckService;
+import main.service.LoginService;
 import main.service.RegisterService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.User;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -31,18 +26,16 @@ public class ApiAuthController {
 
   private final CheckService checkService;
   private final CaptchaService captchaService;
-  private final AuthenticationManager authenticationManager;
-  private final UserRepository userRepository;
+  private final LoginService loginService;
   private final RegisterService registerService;
 
   @Autowired
   public ApiAuthController(CheckService checkService, CaptchaService captchaService,
-      AuthenticationManager authenticationManager,
-      UserRepository userRepository, RegisterService registerService) {
+      LoginService loginService, RegisterService registerService) {
     this.checkService = checkService;
     this.captchaService = captchaService;
-    this.authenticationManager = authenticationManager;
-    this.userRepository = userRepository;
+    this.loginService = loginService;
+
     this.registerService = registerService;
   }
 
@@ -64,32 +57,8 @@ public class ApiAuthController {
 
   @PostMapping("/login")
   public LoginResponse login(@RequestBody LoginRequest loginRequest) {
-    Authentication auth = authenticationManager
-        .authenticate(new UsernamePasswordAuthenticationToken(loginRequest.getEmail(),
-            loginRequest.getPassword()));
-    SecurityContextHolder.getContext().setAuthentication(auth);
 
-    User user = (User) auth.getPrincipal();
-    main.model.User currentUser = userRepository.findByEmail(user.getUsername());
-
-    UserLoginResponse userLoginResponse = new UserLoginResponse();
-    LoginResponse loginResponse = new LoginResponse();
-
-    if (currentUser == null) {
-      loginResponse.setResult(false);
-    } else {
-
-      userLoginResponse.setId(currentUser.getId());
-      userLoginResponse.setEmail(currentUser.getEmail());
-      userLoginResponse.setModeration(currentUser.getIsModerator() == 1);
-      userLoginResponse.setName(currentUser.getName());
-      userLoginResponse.setPhoto(currentUser.getPhoto());
-      userLoginResponse.setSettings(true);
-
-      loginResponse.setResult(true);
-      loginResponse.setUserLoginResponse(userLoginResponse);
-    }
-    return loginResponse;
+    return loginService.loginUser(loginRequest);
   }
 
   @GetMapping("/logout")
