@@ -1,6 +1,8 @@
 package main.controller;
 
+import main.api.requset.LikeDislikeRequest;
 import main.api.requset.PostRequest;
+import main.api.response.LikeDislikeResponse;
 import main.api.response.PostByIdResponse;
 import main.api.response.PostResponse;
 import main.api.response.PostingResponse;
@@ -94,5 +96,17 @@ public class ApiPostController {
   public PostingResponse updatePost(@PathVariable int id,
       @RequestBody PostRequest postRequest) {
     return postService.updatePost(id, postRequest);
+  }
+
+  @PostMapping("/like")
+  @PreAuthorize("hasAuthority('user:write')")
+  public LikeDislikeResponse like(@RequestBody LikeDislikeRequest likeDislikeRequest) {
+    return postService.like(likeDislikeRequest);
+  }
+
+  @PostMapping("/dislike")
+  @PreAuthorize("hasAuthority('user:write')")
+  public LikeDislikeResponse dislike(@RequestBody LikeDislikeRequest likeDislikeRequest) {
+    return postService.dislike(likeDislikeRequest);
   }
 }

@@ -10,9 +10,11 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import main.api.requset.CommentRequest;
+import main.api.requset.LikeDislikeRequest;
 import main.api.requset.PostRequest;
 import main.api.response.CalendarResponse;
 import main.api.response.CommentResponse;
+import main.api.response.LikeDislikeResponse;
 import main.api.response.PostByIdResponse;
 import main.api.response.PostErrorResponse;
 import main.api.response.PostResponse;
@@ -28,6 +30,7 @@ import main.model.Posts;
 import main.model.Tags;
 import main.model.repositories.PostCommentRepository;
 import main.model.repositories.PostRepository;
+import main.model.repositories.PostVoteRepository;
 import main.model.repositories.UserRepository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -45,6 +48,7 @@ public class PostService {
   private final PostRepository postRepository;
   private final UserRepository userRepository;
   private final PostCommentRepository postCommentRepository;
+  private final PostVoteRepository postVoteRepository;
 
   private Sort sort;
   private final int MAX_LENGTH = 150;
@@ -53,10 +57,12 @@ public class PostService {
 
   public PostService(PostRepository postRepository,
       UserRepository userRepository,
-      PostCommentRepository postCommentRepository) {
+      PostCommentRepository postCommentRepository,
+      PostVoteRepository postVoteRepository) {
     this.postRepository = postRepository;
     this.userRepository = userRepository;
     this.postCommentRepository = postCommentRepository;
+    this.postVoteRepository = postVoteRepository;
   }
 
   public PostResponse getPosts(int offset, int limit, String mode) {
@@ -512,16 +518,93 @@ public class PostService {
     int postId = commentRequest.getPostId();
     String commentText = commentRequest.getText();
 
-    postComment.setPostId(postId);
-    postComment.setParentId(parentId);
-    postComment.setUser(currentUser);
-    postComment.setTime(new Date());
-    postComment.setText(commentText);
+    Optional<Posts> optionalPost = postRepository.findPostById(postId);
+    if (optionalPost.isPresent()) {
+      postComment.setPostId(postId);
+      postComment.setParentId(parentId);
+      postComment.setUser(currentUser);
+      postComment.setTime(new Date());
+      postComment.setText(commentText);
 
-    postCommentRepository.save(postComment);
-    commentResponse.setId(postComment.getId());
-
+      postCommentRepository.save(postComment);
+      commentResponse.setId(postComment.getId());
+    }
     return commentResponse;
+  }
+
+  public LikeDislikeResponse like(LikeDislikeRequest likeRequest) {
+    Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+    User user = (User) authentication.getPrincipal();
+    main.model.User currentUser = userRepository.findByEmail(user.getUsername());
+
+    LikeDislikeResponse likeDislikeResponse = new LikeDislikeResponse();
+    PostVotes postVote = new PostVotes();
+
+    int postId = likeRequest.getPostId();
+    Optional<PostVotes> optionalPostVote = postVoteRepository.findByPostId(postId,
+        currentUser.getId());
+
+    if (optionalPostVote.isEmpty()) {
+
+      postVote.setPostId(postId);
+      postVote.setUserId(currentUser.getId());
+      postVote.setTime(new Date());
+      postVote.setValue(1);
+
+      postVoteRepository.save(postVote);
+      likeDislikeResponse.setResult(true);
+    }
+    if (optionalPostVote.isPresent()) {
+      PostVotes vote = optionalPostVote.get();
+      int voteUserId = vote.getUserId();
+      int currentUserId = currentUser.getId();
+      if ((voteUserId == currentUserId) && (vote.getValue() == -1)) {
+        vote.setValue(1);
+        postVoteRepository.save(vote);
+        likeDislikeResponse.setResult(true);
+      } else {
+        likeDislikeResponse.setResult(false);
+      }
+    }
+    return likeDislikeResponse;
+  }
+
+  public LikeDislikeResponse dislike(LikeDislikeRequest dislikeRequest) {
+    Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+    User user = (User) authentication.getPrincipal();
+    main.model.User currentUser = userRepository.findByEmail(user.getUsername());
+
+    LikeDislikeResponse likeDislikeResponse = new LikeDislikeResponse();
+    PostVotes postVote = new PostVotes();
+
+    int postId = dislikeRequest.getPostId();
+    Optional<PostVotes> optionalPostVote = postVoteRepository.findByPostId(postId,
+        currentUser.getId());
+
+    if (optionalPostVote.isEmpty()) {
+
+      postVote.setPostId(postId);
+      postVote.setUserId(currentUser.getId());
+      postVote.setTime(new Date());
+      postVote.setValue(-1);
+
+      postVoteRepository.save(postVote);
+      likeDislikeResponse.setResult(true);
+    }
+    if (optionalPostVote.isPresent()) {
+      PostVotes vote = optionalPostVote.get();
+      int voteUserId = vote.getUserId();
+      int currentUserId = currentUser.getId();
+      if ((voteUserId == currentUserId) && (vote.getValue() == 1)) {
+        vote.setValue(-1);
+        postVoteRepository.save(vote);
+        likeDislikeResponse.setResult(true);
+      } else {
+        likeDislikeResponse.setResult(false);
+      }
+    }
+
+    return likeDislikeResponse;
   }
 
   private PostDto entityToDto(Posts post) {
