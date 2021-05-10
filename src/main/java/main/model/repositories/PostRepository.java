@@ -154,4 +154,13 @@ public interface PostRepository extends JpaRepository<Posts, Integer> {
       + "WHERE p.isActive = 1 AND p.user = :user "
       + "ORDER BY p.time ASC")
   List<Posts> findByUser(@Param("user") User user);
+
+  @Query("SELECT p "
+      + "FROM Posts p "
+      + "LEFT JOIN User u ON u.id = p.user "
+      + "LEFT JOIN PostVotes pv1 ON p.id = pv1.postId AND pv1.value = 1 "
+      + "LEFT JOIN PostVotes pv2 ON p.id = pv2.postId AND pv2.value = -1 "
+      + "WHERE p.isActive = 1 "
+      + "ORDER BY p.time ASC")
+  List<Posts> findAllForStatistics();
 }

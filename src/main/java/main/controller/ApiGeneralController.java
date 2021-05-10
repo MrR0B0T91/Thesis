@@ -4,8 +4,8 @@ import main.api.requset.CommentRequest;
 import main.api.response.CalendarResponse;
 import main.api.response.CommentResponse;
 import main.api.response.InitResponse;
-import main.api.response.MyStatisticResponse;
 import main.api.response.SettingsResponse;
+import main.api.response.StatisticsResponse;
 import main.api.response.TagResponse;
 import main.service.PostService;
 import main.service.SettingsService;
@@ -70,7 +70,12 @@ public class ApiGeneralController {
 
   @GetMapping("/statistics/my")
   @PreAuthorize("hasAuthority('user:write')")
-  public MyStatisticResponse myStatistics() {
+  public StatisticsResponse myStatistics() {
     return statisticService.getMyStatistics();
+  }
+
+  @GetMapping("/statistics/all")
+  public StatisticsResponse allStatistics() {
+    return statisticService.getAllStatistics();
   }
 }

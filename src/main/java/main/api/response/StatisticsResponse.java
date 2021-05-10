@@ -3,7 +3,7 @@ package main.api.response;
 import lombok.Data;
 
 @Data
-public class MyStatisticResponse {
+public class StatisticsResponse {
 
   private int postsCount;
   private int likesCount;
