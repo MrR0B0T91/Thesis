@@ -4,10 +4,12 @@ import main.api.requset.CommentRequest;
 import main.api.response.CalendarResponse;
 import main.api.response.CommentResponse;
 import main.api.response.InitResponse;
+import main.api.response.MyStatisticResponse;
 import main.api.response.SettingsResponse;
 import main.api.response.TagResponse;
 import main.service.PostService;
 import main.service.SettingsService;
+import main.service.StatisticService;
 import main.service.TagService;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -25,14 +27,16 @@ public class ApiGeneralController {
   private final SettingsService settingsService;
   private final TagService tagService;
   private final PostService postService;
+  private final StatisticService statisticService;
 
   public ApiGeneralController(
       InitResponse initResponse, SettingsService settingsService, TagService tagService,
-      PostService postService) {
+      PostService postService, StatisticService statisticService) {
     this.initResponse = initResponse;
     this.settingsService = settingsService;
     this.tagService = tagService;
     this.postService = postService;
+    this.statisticService = statisticService;
   }
 
   @GetMapping("/init")
@@ -58,9 +62,15 @@ public class ApiGeneralController {
   }
 
   @PostMapping("/comment")
-  @PreAuthorize(("hasAuthority('user:write')"))
+  @PreAuthorize("hasAuthority('user:write')")
   public CommentResponse comment(@RequestBody CommentRequest commentRequest) {
 
     return postService.postComment(commentRequest);
+  }
+
+  @GetMapping("/statistics/my")
+  @PreAuthorize("hasAuthority('user:write')")
+  public MyStatisticResponse myStatistics() {
+    return statisticService.getMyStatistics();
   }
 }
