@@ -4,6 +4,7 @@ spring.datasource.password: testtest
 spring.jpa.hibernate.ddl-auto: validate
 
 spring.liquibase.change-log: classpath:db/changelog/db.changelog-master-1.0.yaml
+upload.path: D://SkillBox/Diploma/data/upload/ab/cd/ef
 
 blog.title: MoviePub
 blog.subtitle: Отзывы о фильмах
