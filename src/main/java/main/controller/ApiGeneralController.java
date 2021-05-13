@@ -1,17 +1,15 @@
 package main.controller;
 
-import java.io.IOException;
+import javax.servlet.http.HttpServletRequest;
 import main.api.requset.CommentRequest;
 import main.api.requset.ProfileRequest;
 import main.api.response.CalendarResponse;
 import main.api.response.CommentResponse;
-import main.api.response.ImageResponse;
 import main.api.response.InitResponse;
 import main.api.response.ProfileResponse;
 import main.api.response.SettingsResponse;
 import main.api.response.StatisticsResponse;
 import main.api.response.TagResponse;
-import main.service.ImageService;
 import main.service.PostService;
 import main.service.ProfileService;
 import main.service.SettingsService;
@@ -25,7 +23,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.multipart.MultipartFile;
 
 @RestController
 @RequestMapping("/api")
@@ -37,19 +34,17 @@ public class ApiGeneralController {
   private final PostService postService;
   private final StatisticService statisticService;
   private final ProfileService profileService;
-  private final ImageService imageService;
 
   public ApiGeneralController(
       InitResponse initResponse, SettingsService settingsService, TagService tagService,
       PostService postService, StatisticService statisticService,
-      ProfileService profileService, ImageService imageService) {
+      ProfileService profileService) {
     this.initResponse = initResponse;
     this.settingsService = settingsService;
     this.tagService = tagService;
     this.postService = postService;
     this.statisticService = statisticService;
     this.profileService = profileService;
-    this.imageService = imageService;
   }
 
   @GetMapping("/init")
@@ -91,15 +86,10 @@ public class ApiGeneralController {
     return statisticService.getAllStatistics();
   }
 
-  @PostMapping("/image")
-  @PreAuthorize("hasAuthority('user:write')")
-  public ImageResponse image(@RequestParam("image")MultipartFile image) throws IOException {
-    return imageService.image(image);
-  }
-
   @PostMapping("/profile/my")
   @PreAuthorize("hasAuthority('user:write')")
-  public ProfileResponse profile(@ModelAttribute ProfileRequest profileRequest) {
-    return profileService.profile(profileRequest);
+  public ProfileResponse profile(@ModelAttribute ProfileRequest profileRequest,
+      HttpServletRequest httpServletRequest) {
+    return profileService.profile(profileRequest, httpServletRequest);
   }
 }

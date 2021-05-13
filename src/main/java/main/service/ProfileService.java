@@ -3,6 +3,7 @@ package main.service;
 import java.io.File;
 import java.io.IOException;
 import java.util.UUID;
+import javax.servlet.http.HttpServletRequest;
 import main.api.requset.ProfileRequest;
 import main.api.response.ProfileResponse;
 import main.model.repositories.UserRepository;
@@ -25,7 +26,7 @@ public class ProfileService {
     this.userRepository = userRepository;
   }
 
-  public ProfileResponse profile(ProfileRequest profileRequest) {
+  public ProfileResponse profile(ProfileRequest profileRequest, HttpServletRequest request) {
     Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
     User user = (User) authentication.getPrincipal();
     main.model.User currentUser = userRepository.findByEmail(user.getUsername());
@@ -33,22 +34,28 @@ public class ProfileService {
 
     MultipartFile image = profileRequest.getPhoto();
 
-    File uploadDir = new File(uploadPath);
-    if (!uploadDir.exists()) {
-      uploadDir.mkdir();
-    }
-    String uuidFile = UUID.randomUUID().toString();
-    String resultFileName = uuidFile + "." + image.getOriginalFilename();
+    if (image != null && !image.getOriginalFilename().isEmpty()) {
+      File uploadDir = new File(uploadPath);
 
-    try {
-      image.transferTo(new File(uploadPath + "/" + resultFileName));
-    } catch (IOException e) {
-      e.printStackTrace();
-    }
+      if (!uploadDir.exists()) {
+        uploadDir.mkdir();
+      }
 
-    currentUser.setPhoto(uploadPath + "/" + resultFileName);
+      String uuidFile = UUID.randomUUID().toString();
+      String resultFileName = uuidFile + "." + image.getOriginalFilename();
+
+      String realPath = request.getServletContext().getRealPath(uploadPath + "/" + resultFileName);
+
+      try {
+        image.transferTo(new File(realPath));
+      } catch (IOException e) {
+        e.printStackTrace();
+      }
+
+      currentUser.setPhoto(realPath);
+      profileResponse.setPhotoPath(uploadPath + "/" + resultFileName);
+    }
     userRepository.save(currentUser);
-
     profileResponse.setResult(true);
 
     return profileResponse;
