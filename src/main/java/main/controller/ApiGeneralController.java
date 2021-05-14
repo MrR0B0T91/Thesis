@@ -86,7 +86,7 @@ public class ApiGeneralController {
     return statisticService.getAllStatistics();
   }
 
-  @PostMapping("/profile/my")
+  @PostMapping(value = "/profile/my")
   @PreAuthorize("hasAuthority('user:write')")
   public ProfileResponse profile(@ModelAttribute ProfileRequest profileRequest,
       HttpServletRequest httpServletRequest) {
