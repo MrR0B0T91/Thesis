@@ -13,6 +13,6 @@ public class ProfileRequest {
   private String name;
   private String email;
   private String password;
-  private MultipartFile photo;
   private int removePhoto;
+  private MultipartFile photo;
 }
