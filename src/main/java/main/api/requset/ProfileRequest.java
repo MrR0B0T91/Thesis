@@ -1,9 +1,9 @@
 package main.api.requset;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.springframework.web.multipart.MultipartFile;
 
 @Data
 @NoArgsConstructor
@@ -13,6 +13,7 @@ public class ProfileRequest {
   private String name;
   private String email;
   private String password;
-  private int removePhoto;
-  private MultipartFile photo;
+  private Integer removePhoto;
+  @JsonProperty("photo")
+  private String image;
 }
