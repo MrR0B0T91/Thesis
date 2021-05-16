@@ -22,7 +22,9 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
 @RestController
 @RequestMapping("/api")
@@ -86,10 +88,16 @@ public class ApiGeneralController {
     return statisticService.getAllStatistics();
   }
 
-  @PostMapping(value = "/profile/my")
+  @PostMapping(value = "/profile/my", consumes = {"multipart/form-data"})
   @PreAuthorize("hasAuthority('user:write')")
   public ProfileResponse profile(@ModelAttribute ProfileRequest profileRequest,
+      @RequestPart("name") String name,
+      @RequestPart("email") String email,
+      @RequestPart(value = "password", required = false) String password,
+      @RequestPart("removePhoto") Integer removePhoto,
+      @RequestPart("photo") MultipartFile image,
       HttpServletRequest httpServletRequest) {
-    return profileService.profile(profileRequest, httpServletRequest);
+    return profileService
+        .profile(profileRequest, name, email, password, removePhoto, image, httpServletRequest);
   }
 }
