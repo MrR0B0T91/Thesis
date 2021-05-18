@@ -11,3 +11,8 @@ blog.phone: +7 903 555-55-55
 blog.email: movie@mail.ru
 blog.copyright: Квентин Тарантино
 blog.copyrightFrom: 1991
+
+spring.mail.host: smtp.mailtrap.io
+spring.mail.port: 2525
+spring.mail.username: e814c71ebd0bc0
+spring.mail.password: 634dc3bf27b195
