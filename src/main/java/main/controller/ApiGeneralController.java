@@ -1,5 +1,6 @@
 package main.controller;
 
+import java.security.Principal;
 import javax.servlet.http.HttpServletRequest;
 import main.api.requset.CommentRequest;
 import main.api.requset.ProfileRequest;
@@ -17,14 +18,12 @@ import main.service.StatisticService;
 import main.service.TagService;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.multipart.MultipartFile;
 
 @RestController
 @RequestMapping("/api")
@@ -90,14 +89,19 @@ public class ApiGeneralController {
 
   @PostMapping(value = "/profile/my", consumes = {"multipart/form-data"})
   @PreAuthorize("hasAuthority('user:write')")
-  public ProfileResponse profile(@ModelAttribute ProfileRequest profileRequest,
-      @RequestPart("name") String name,
-      @RequestPart("email") String email,
-      @RequestPart(value = "password", required = false) String password,
-      @RequestPart("removePhoto") Integer removePhoto,
-      @RequestPart("photo") MultipartFile image,
-      HttpServletRequest httpServletRequest) {
+  public ProfileResponse multipartProfile(@RequestPart("photo") byte[] photo,
+      @RequestParam(value = "name") String name,
+      @RequestParam(value = "email") String email,
+      @RequestParam(value = "removePhoto", defaultValue = "0") int removePhoto,
+      @RequestParam(value = "password") String password,
+      HttpServletRequest httpServletRequest, Principal principal) {
     return profileService
-        .profile(profileRequest, name, email, password, removePhoto, image, httpServletRequest);
+        .multipartProfile(photo, name, email, removePhoto, password, httpServletRequest, principal);
+  }
+
+  @PostMapping(value = "/profile/my", consumes = {"application/json"})
+  @PreAuthorize("hasAuthority('user:write')")
+  public ProfileResponse jsonProfile(@RequestBody ProfileRequest profileRequest) {
+    return profileService.jsonProfile(profileRequest);
   }
 }

@@ -1,6 +1,5 @@
 package main.api.requset;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -14,6 +13,5 @@ public class ProfileRequest {
   private String email;
   private String password;
   private Integer removePhoto;
-  @JsonProperty("photo")
-  private String image;
+  private String photo;
 }
