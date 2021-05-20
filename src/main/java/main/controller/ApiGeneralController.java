@@ -3,10 +3,12 @@ package main.controller;
 import java.security.Principal;
 import javax.servlet.http.HttpServletRequest;
 import main.api.requset.CommentRequest;
+import main.api.requset.ModerateRequest;
 import main.api.requset.ProfileRequest;
 import main.api.response.CalendarResponse;
 import main.api.response.CommentResponse;
 import main.api.response.InitResponse;
+import main.api.response.LikeDislikeResponse;
 import main.api.response.ProfileResponse;
 import main.api.response.SettingsResponse;
 import main.api.response.StatisticsResponse;
@@ -103,5 +105,12 @@ public class ApiGeneralController {
   @PreAuthorize("hasAuthority('user:write')")
   public ProfileResponse jsonProfile(@RequestBody ProfileRequest profileRequest) {
     return profileService.jsonProfile(profileRequest);
+  }
+
+  @PostMapping("moderation")
+  @PreAuthorize("hasAuthority('user:moderate')")
+  public LikeDislikeResponse moderatePost(@RequestBody ModerateRequest moderateRequest,
+      Principal principal) {
+    return postService.moderatePost(moderateRequest, principal);
   }
 }

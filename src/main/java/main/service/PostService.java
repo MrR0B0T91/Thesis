@@ -1,5 +1,6 @@
 package main.service;
 
+import java.security.Principal;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -11,6 +12,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 import main.api.requset.CommentRequest;
 import main.api.requset.LikeDislikeRequest;
+import main.api.requset.ModerateRequest;
 import main.api.requset.PostRequest;
 import main.api.response.CalendarResponse;
 import main.api.response.CommentResponse;
@@ -312,6 +314,10 @@ public class PostService {
           postByIdResponse.setViewCount(++viewCount);
         }
       }
+
+      post.setViewCount(viewCount);
+      postRepository.save(post);
+
       postByIdResponse.setId(post.getId());
       postByIdResponse.setTimestamp(unixTime);
       postByIdResponse.setActive(post.getIsActive());
@@ -327,17 +333,24 @@ public class PostService {
     return postByIdResponse;
   }
 
-  public PostResponse getModerationPosts(int offset, int limit, ModerationStatus status) {
+  public PostResponse getModerationPosts(int offset, int limit, String status) {
 
     PostResponse postResponse = new PostResponse();
-
+    ModerationStatus moderationStatus = ModerationStatus.NEW;
+    if (status.equals("declined")) {
+      moderationStatus = ModerationStatus.DECLINED;
+    }
+    if (status.equals("accepted")) {
+      moderationStatus = ModerationStatus.ACCEPTED;
+    }
     Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
     User user = (User) authentication.getPrincipal();
     main.model.User currentUser = userRepository.findByEmail(user.getUsername());
 
     sort = Sort.by("time").descending();
     Page<Posts> recentPage = postRepository
-        .findModeratedPosts(currentUser.getId(), status, getSortedPaging(offset, limit, sort));
+        .findModeratedPosts(currentUser.getId(), moderationStatus,
+            getSortedPaging(offset, limit, sort));
     List<Posts> postsList = recentPage.getContent();
     List<PostDto> postDtoList =
         postsList.stream().map(this::entityToDto).collect(Collectors.toList());
@@ -345,6 +358,27 @@ public class PostService {
     postResponse.setPosts(postDtoList);
 
     return postResponse;
+  }
+
+  public LikeDislikeResponse moderatePost(ModerateRequest moderateRequest, Principal principal) {
+    LikeDislikeResponse response = new LikeDislikeResponse();
+
+    main.model.User user = userRepository.findByEmail(principal.getName());
+    Posts post = postRepository.findById(moderateRequest.getPostId());
+    if (user.getIsModerator() == 1) {
+      if (moderateRequest.getDecision().equals("accept")) {
+        post.setModerationStatus(ModerationStatus.ACCEPTED);
+      }
+      if (moderateRequest.getDecision().equals("decline")) {
+        post.setModerationStatus(ModerationStatus.DECLINED);
+      }
+      post.setModeratorId(user.getId());
+      postRepository.save(post);
+      response.setResult(true);
+    } else {
+      response.setResult(false);
+    }
+    return response;
   }
 
   public PostResponse getMyPosts(int offset, int limit, String status) {
