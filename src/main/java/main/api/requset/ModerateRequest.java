@@ -1,5 +1,6 @@
 package main.api.requset;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -7,11 +8,9 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class ProfileRequest {
+public class ModerateRequest {
 
-  private String name;
-  private String email;
-  private String password;
-  private Integer removePhoto;
-  private String photo;
+  @JsonProperty("post_id")
+  private int postId;
+  private String decision;
 }

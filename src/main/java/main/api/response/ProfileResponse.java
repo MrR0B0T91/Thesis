@@ -8,5 +8,4 @@ public class ProfileResponse {
 
   private boolean result;
   private ProfileErrors errors;
-  private String photoPath;
 }

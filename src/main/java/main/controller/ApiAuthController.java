@@ -1,14 +1,19 @@
 package main.controller;
 
 import main.api.requset.LoginRequest;
+import main.api.requset.PasswordRequest;
 import main.api.requset.RegisterRequest;
+import main.api.requset.RestoreRequest;
 import main.api.response.CaptchaResponse;
 import main.api.response.CheckResponse;
+import main.api.response.LikeDislikeResponse;
 import main.api.response.LoginResponse;
 import main.api.response.LogoutResponse;
+import main.api.response.PasswordResponse;
 import main.api.response.RegisterResponse;
 import main.service.CaptchaService;
 import main.service.CheckService;
+import main.service.EmailService;
 import main.service.LoginService;
 import main.service.RegisterService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,15 +33,17 @@ public class ApiAuthController {
   private final CaptchaService captchaService;
   private final LoginService loginService;
   private final RegisterService registerService;
+  private final EmailService emailService;
 
   @Autowired
   public ApiAuthController(CheckService checkService, CaptchaService captchaService,
-      LoginService loginService, RegisterService registerService) {
+      LoginService loginService, RegisterService registerService,
+      EmailService emailService) {
     this.checkService = checkService;
     this.captchaService = captchaService;
     this.loginService = loginService;
-
     this.registerService = registerService;
+    this.emailService = emailService;
   }
 
   @GetMapping("/check")
@@ -69,5 +76,15 @@ public class ApiAuthController {
     SecurityContextHolder.getContext().setAuthentication(null);
 
     return logoutResponse;
+  }
+
+  @PostMapping("/restore")
+  public LikeDislikeResponse restore(@RequestBody RestoreRequest restoreRequest) {
+    return emailService.restorePassword(restoreRequest);
+  }
+
+  @PostMapping("/password")
+  public PasswordResponse password(@RequestBody PasswordRequest passwordRequest) {
+    return emailService.password(passwordRequest);
   }
 }
