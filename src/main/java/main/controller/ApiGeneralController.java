@@ -5,6 +5,7 @@ import javax.servlet.http.HttpServletRequest;
 import main.api.requset.CommentRequest;
 import main.api.requset.ModerateRequest;
 import main.api.requset.ProfileRequest;
+import main.api.requset.SettingsRequest;
 import main.api.response.CalendarResponse;
 import main.api.response.CommentResponse;
 import main.api.response.InitResponse;
@@ -21,6 +22,7 @@ import main.service.TagService;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -58,6 +60,12 @@ public class ApiGeneralController {
   @GetMapping("/settings")
   public SettingsResponse settings() {
     return settingsService.getGlobalSettings();
+  }
+
+  @PutMapping("/settings")
+  @PreAuthorize("hasAuthority('user:moderate')")
+  public SettingsResponse changeSettings(@RequestBody SettingsRequest settingsRequest) {
+    return settingsService.changeSettings(settingsRequest);
   }
 
   @GetMapping("/tag")
@@ -107,7 +115,7 @@ public class ApiGeneralController {
     return profileService.jsonProfile(profileRequest);
   }
 
-  @PostMapping("moderation")
+  @PostMapping("/moderation")
   @PreAuthorize("hasAuthority('user:moderate')")
   public LikeDislikeResponse moderatePost(@RequestBody ModerateRequest moderateRequest,
       Principal principal) {
