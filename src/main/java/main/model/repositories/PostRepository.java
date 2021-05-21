@@ -24,7 +24,7 @@ public interface PostRepository extends JpaRepository<Posts, Integer> {
           + "LEFT JOIN User u ON u.id = p.user "
           + "LEFT JOIN PostVotes pv1 ON p.id = pv1.postId AND pv1.value = 1 "
           + "LEFT JOIN PostVotes pv2 ON p.id = pv2.postId AND pv2.value = -1 "
-          + "LEFT JOIN PostComments pc ON p.id = pc.postId "
+          + "LEFT JOIN PostComments pc ON p.id = pc.post "
           + "WHERE p.isActive = 1 AND p.moderationStatus = 'ACCEPTED' AND p.time <= CURRENT_DATE() "
           + "GROUP BY p.id")
   Page<Posts> findAll(Pageable pageable);
@@ -35,7 +35,7 @@ public interface PostRepository extends JpaRepository<Posts, Integer> {
           + "LEFT JOIN User u ON u.id = p.user "
           + "LEFT JOIN PostVotes pv1 ON p.id = pv1.postId AND pv1.value = 1 "
           + "LEFT JOIN PostVotes pv2 ON p.id = pv2.postId AND pv2.value = -1 "
-          + "LEFT JOIN PostComments pc ON p.id = pc.postId "
+          + "LEFT JOIN PostComments pc ON p.id = pc.post "
           + "WHERE p.isActive = 1 AND p.moderationStatus = 'ACCEPTED' AND p.time <= CURRENT_DATE() "
           + "GROUP BY p.id "
           + "ORDER BY COUNT(pv1) DESC")
@@ -47,7 +47,7 @@ public interface PostRepository extends JpaRepository<Posts, Integer> {
           + "LEFT JOIN User u ON u.id = p.user "
           + "LEFT JOIN PostVotes pv1 ON p.id = pv1.postId AND pv1.value = 1 "
           + "LEFT JOIN PostVotes pv2 ON p.id = pv2.postId AND pv2.value = -1 "
-          + "LEFT JOIN PostComments pc ON p.id = pc.postId "
+          + "LEFT JOIN PostComments pc ON p.id = pc.post "
           + "WHERE p.isActive = 1 AND p.moderationStatus = 'ACCEPTED' AND p.time <= CURRENT_DATE() "
           + "GROUP BY p.id "
           + "ORDER BY COUNT(pc) DESC")
@@ -59,7 +59,7 @@ public interface PostRepository extends JpaRepository<Posts, Integer> {
           + "LEFT JOIN User u ON u.id = p.user "
           + "LEFT JOIN PostVotes pv1 ON p.id = pv1.postId AND pv1.value = 1 "
           + "LEFT JOIN PostVotes pv2 ON p.id = pv2.postId AND pv2.value = -1 "
-          + "LEFT JOIN PostComments pc ON p.id = pc.postId "
+          + "LEFT JOIN PostComments pc ON p.id = pc.post "
           + "WHERE p.isActive = 1 AND p.moderationStatus = 'ACCEPTED' AND p.time <= CURRENT_DATE() AND upper(p.title) like concat('%', upper(?1), '%') "
           + "GROUP BY p.id")
   Page<Posts> findPostsByQuery(String query, Pageable pageable);
@@ -77,10 +77,10 @@ public interface PostRepository extends JpaRepository<Posts, Integer> {
           + "LEFT JOIN User u ON u.id = p.user "
           + "LEFT JOIN PostVotes pv1 ON p.id = pv1.postId AND pv1.value = 1 "
           + "LEFT JOIN PostVotes pv2 ON p.id = pv2.postId AND pv2.value = -1 "
-          + "LEFT JOIN PostComments pc ON p.id = pc.postId "
+          + "LEFT JOIN PostComments pc ON p.id = pc.post "
           + "LEFT JOIN Tag2Post t2p ON p.id = t2p.postId "
           + "LEFT JOIN Tags t ON t.id = t2p.tagId "
-          + "WHERE p.isActive = 1 AND p.moderationStatus = 'ACCEPTED' AND p.time <= CURRENT_DATE() AND p.id = :id "
+          + "WHERE p.id = :id "
           + "GROUP BY p.id")
   Optional<Posts> findPostById(@Param("id") int id);
 
@@ -90,7 +90,7 @@ public interface PostRepository extends JpaRepository<Posts, Integer> {
           + "LEFT JOIN User u ON u.id = p.user "
           + "LEFT JOIN PostVotes pv1 ON p.id = pv1.postId AND pv1.value = 1 "
           + "LEFT JOIN PostVotes pv2 ON p.id = pv2.postId AND pv2.value = -1 "
-          + "LEFT JOIN PostComments pc ON p.id = pc.postId "
+          + "LEFT JOIN PostComments pc ON p.id = pc.post "
           + "WHERE p.isActive = 1 AND p.moderationStatus = :STATUS AND p.moderatorId = :id "
           + "GROUP BY p.id")
   Page<Posts> findModeratedPosts(@Param("id") int id, @Param("STATUS") ModerationStatus status,
@@ -102,7 +102,7 @@ public interface PostRepository extends JpaRepository<Posts, Integer> {
           + "LEFT JOIN User u ON u.id = p.user "
           + "LEFT JOIN PostVotes pv1 ON p.id = pv1.postId AND pv1.value = 1 "
           + "LEFT JOIN PostVotes pv2 ON p.id = pv2.postId AND pv2.value = -1 "
-          + "LEFT JOIN PostComments pc ON p.id = pc.postId "
+          + "LEFT JOIN PostComments pc ON p.id = pc.post "
           + "WHERE p.isActive = 0 AND p.user = :user "
           + "GROUP BY p.id")
   Page<Posts> findInactivePosts(@Param("user") User user, Pageable pageable);
@@ -113,7 +113,7 @@ public interface PostRepository extends JpaRepository<Posts, Integer> {
           + "LEFT JOIN User u ON u.id = p.user "
           + "LEFT JOIN PostVotes pv1 ON p.id = pv1.postId AND pv1.value = 1 "
           + "LEFT JOIN PostVotes pv2 ON p.id = pv2.postId AND pv2.value = -1 "
-          + "LEFT JOIN PostComments pc ON p.id = pc.postId "
+          + "LEFT JOIN PostComments pc ON p.id = pc.post "
           + "WHERE p.isActive = 1 AND p.user = :user AND p.moderationStatus = 'NEW' "
           + "GROUP BY p.id")
   Page<Posts> findPendingPosts(@Param("user") User user, Pageable pageable);
@@ -124,7 +124,7 @@ public interface PostRepository extends JpaRepository<Posts, Integer> {
           + "LEFT JOIN User u ON u.id = p.user "
           + "LEFT JOIN PostVotes pv1 ON p.id = pv1.postId AND pv1.value = 1 "
           + "LEFT JOIN PostVotes pv2 ON p.id = pv2.postId AND pv2.value = -1 "
-          + "LEFT JOIN PostComments pc ON p.id = pc.postId "
+          + "LEFT JOIN PostComments pc ON p.id = pc.post "
           + "WHERE p.isActive = 1 AND p.user = :user AND p.moderationStatus = 'DECLINED' "
           + "GROUP BY p.id")
   Page<Posts> findDeclinedPosts(@Param("user") User user, Pageable pageable);
@@ -135,7 +135,7 @@ public interface PostRepository extends JpaRepository<Posts, Integer> {
           + "LEFT JOIN User u ON u.id = p.user "
           + "LEFT JOIN PostVotes pv1 ON p.id = pv1.postId AND pv1.value = 1 "
           + "LEFT JOIN PostVotes pv2 ON p.id = pv2.postId AND pv2.value = -1 "
-          + "LEFT JOIN PostComments pc ON p.id = pc.postId "
+          + "LEFT JOIN PostComments pc ON p.id = pc.post "
           + "WHERE p.isActive = 1 AND p.user = :user AND p.moderationStatus = 'ACCEPTED' "
           + "GROUP BY p.id")
   Page<Posts> findPublishedPosts(@Param("user") User user, Pageable pageable);

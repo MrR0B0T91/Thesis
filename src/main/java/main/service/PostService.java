@@ -248,31 +248,20 @@ public class PostService {
 
       List<PostVotes> postVotesList = post.getPostVoteList();
 
-      int countLikes = 0;
-      int countDislikes = 0;
-      for (PostVotes postVote : postVotesList) {
-        int value = postVote.getValue();
-        if (value == 1) {
-          countLikes++;
-        }
-        if (value == -1) {
-          countDislikes++;
-        }
-      }
-
       List<PostComments> postComments = post.getPostCommentsList();
       List<Tags> tagsList = post.getTagsList();
       List<CommentDto> commentDtoList = new ArrayList<>();
       List<String> tags = new ArrayList<>();
 
-      CommentDto commentDto = new CommentDto();
-      CommentUserDto commentUserDto = new CommentUserDto();
       UserDto userDtoForPost = new UserDto();
 
       userDtoForPost.setId(post.getUser().getId());
       userDtoForPost.setName(post.getUser().getName());
 
       for (PostComments comment : postComments) {
+
+        CommentDto commentDto = new CommentDto();
+        CommentUserDto commentUserDto = new CommentUserDto();
 
         int commentId = comment.getId();
         long timestamp = comment.getTime().getTime() / 1000;
@@ -324,8 +313,8 @@ public class PostService {
       postByIdResponse.setUser(userDtoForPost);
       postByIdResponse.setTitle(post.getTitle());
       postByIdResponse.setText(post.getText());
-      postByIdResponse.setLikeCount(countLikes);
-      postByIdResponse.setDislikeCount(countDislikes);
+      postByIdResponse.setLikeCount(countLikes(postVotesList));
+      postByIdResponse.setDislikeCount(countDisLikes(postVotesList));
 
       postByIdResponse.setComments(commentDtoList);
       postByIdResponse.setTags(tags);
@@ -432,10 +421,9 @@ public class PostService {
     return postResponse;
   }
 
-  public PostingResponse makePost(PostRequest postRequest) {
-    Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-    User user = (User) authentication.getPrincipal();
-    main.model.User currentUser = userRepository.findByEmail(user.getUsername());
+  public PostingResponse makePost(PostRequest postRequest, Principal principal) {
+
+    main.model.User currentUser = userRepository.findByEmail(principal.getName());
 
     PostingResponse postingResponse = new PostingResponse();
     Posts post = new Posts();
@@ -482,10 +470,9 @@ public class PostService {
     return postingResponse;
   }
 
-  public PostingResponse updatePost(int id, PostRequest postRequest) {
-    Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-    User user = (User) authentication.getPrincipal();
-    main.model.User currentUser = userRepository.findByEmail(user.getUsername());
+  public PostingResponse updatePost(int id, PostRequest postRequest, Principal principal) {
+
+    main.model.User currentUser = userRepository.findByEmail(principal.getName());
 
     PostingResponse postingResponse = new PostingResponse();
     Posts post = postRepository.findById(id);
@@ -540,10 +527,9 @@ public class PostService {
     return postingResponse;
   }
 
-  public CommentResponse postComment(CommentRequest commentRequest) {
-    Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-    User user = (User) authentication.getPrincipal();
-    main.model.User currentUser = userRepository.findByEmail(user.getUsername());
+  public CommentResponse postComment(CommentRequest commentRequest, Principal principal) {
+
+    main.model.User currentUser = userRepository.findByEmail(principal.getName());
 
     CommentResponse commentResponse = new CommentResponse();
     PostComments postComment = new PostComments();
@@ -554,7 +540,7 @@ public class PostService {
 
     Optional<Posts> optionalPost = postRepository.findPostById(postId);
     if (optionalPost.isPresent()) {
-      postComment.setPostId(postId);
+      postComment.setPost(optionalPost.get());
       postComment.setParentId(parentId);
       postComment.setUser(currentUser);
       postComment.setTime(new Date());
@@ -566,10 +552,9 @@ public class PostService {
     return commentResponse;
   }
 
-  public LikeDislikeResponse like(LikeDislikeRequest likeRequest) {
-    Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-    User user = (User) authentication.getPrincipal();
-    main.model.User currentUser = userRepository.findByEmail(user.getUsername());
+  public LikeDislikeResponse like(LikeDislikeRequest likeRequest, Principal principal) {
+
+    main.model.User currentUser = userRepository.findByEmail(principal.getName());
 
     LikeDislikeResponse likeDislikeResponse = new LikeDislikeResponse();
     PostVotes postVote = new PostVotes();
@@ -594,19 +579,18 @@ public class PostService {
       int currentUserId = currentUser.getId();
       if ((voteUserId == currentUserId) && (vote.getValue() == -1)) {
         vote.setValue(1);
-        postVoteRepository.save(vote);
         likeDislikeResponse.setResult(true);
       } else {
         likeDislikeResponse.setResult(false);
       }
+      postVoteRepository.save(vote);
     }
     return likeDislikeResponse;
   }
 
-  public LikeDislikeResponse dislike(LikeDislikeRequest dislikeRequest) {
-    Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-    User user = (User) authentication.getPrincipal();
-    main.model.User currentUser = userRepository.findByEmail(user.getUsername());
+  public LikeDislikeResponse dislike(LikeDislikeRequest dislikeRequest, Principal principal) {
+
+    main.model.User currentUser = userRepository.findByEmail(principal.getName());
 
     LikeDislikeResponse likeDislikeResponse = new LikeDislikeResponse();
     PostVotes postVote = new PostVotes();
@@ -631,13 +615,12 @@ public class PostService {
       int currentUserId = currentUser.getId();
       if ((voteUserId == currentUserId) && (vote.getValue() == 1)) {
         vote.setValue(-1);
-        postVoteRepository.save(vote);
         likeDislikeResponse.setResult(true);
       } else {
         likeDislikeResponse.setResult(false);
       }
+      postVoteRepository.save(vote);
     }
-
     return likeDislikeResponse;
   }
 
@@ -651,18 +634,6 @@ public class PostService {
 
     List<PostComments> postCommentsList = post.getPostCommentsList();
     List<PostVotes> postVotesList = post.getPostVoteList();
-
-    int countLikes = 0;
-    int countDislikes = 0;
-    for (PostVotes postVote : postVotesList) {
-      int value = postVote.getValue();
-      if (value == 1) {
-        countLikes++;
-      }
-      if (value == -1) {
-        countDislikes++;
-      }
-    }
 
     int countComments = postCommentsList.size();
 
@@ -684,8 +655,8 @@ public class PostService {
     postDto.setUserDto(userDto);
     postDto.setTitle(post.getTitle());
     postDto.setAnnounce(announce);
-    postDto.setLikeCount(countLikes);
-    postDto.setDislikeCount(countDislikes);
+    postDto.setLikeCount(countLikes(postVotesList));
+    postDto.setDislikeCount(countDisLikes(postVotesList));
     postDto.setCommentCount(countComments);
     postDto.setViewCount(post.getViewCount());
 
@@ -716,5 +687,27 @@ public class PostService {
     sortedPaging = PageRequest.of(pageNumber, limit, sort);
 
     return sortedPaging;
+  }
+
+  public int countLikes(List<PostVotes> postVotesList) {
+    int countLikes = 0;
+    for (PostVotes postVote : postVotesList) {
+      int value = postVote.getValue();
+      if (value == 1) {
+        countLikes++;
+      }
+    }
+    return countLikes;
+  }
+
+  public int countDisLikes(List<PostVotes> postVotesList) {
+    int countDislikes = 0;
+    for (PostVotes postVote : postVotesList) {
+      int value = postVote.getValue();
+      if (value == -1) {
+        countDislikes++;
+      }
+    }
+    return countDislikes;
   }
 }

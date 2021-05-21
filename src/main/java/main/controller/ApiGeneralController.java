@@ -82,8 +82,8 @@ public class ApiGeneralController {
 
   @PostMapping("/comment")
   @PreAuthorize("hasAuthority('user:write')")
-  public CommentResponse comment(@RequestBody CommentRequest commentRequest) {
-    return postService.postComment(commentRequest);
+  public CommentResponse comment(@RequestBody CommentRequest commentRequest, Principal principal) {
+    return postService.postComment(commentRequest, principal);
   }
 
   @GetMapping("/statistics/my")
