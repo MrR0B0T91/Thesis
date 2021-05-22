@@ -4,10 +4,10 @@ import java.util.Optional;
 import java.util.UUID;
 import main.api.requset.PasswordRequest;
 import main.api.requset.RestoreRequest;
-import main.api.response.LikeDislikeResponse;
+import main.api.response.GeneralResponse;
 import main.api.response.PasswordResponse;
 import main.config.EmailConfig;
-import main.dto.PasswordErrors;
+import main.dto.PasswordErrorsDto;
 import main.model.CaptchaCodes;
 import main.model.User;
 import main.model.repositories.CaptchaCodeRepository;
@@ -31,8 +31,8 @@ public class EmailService {
     this.captchaCodeRepository = captchaCodeRepository;
   }
 
-  public LikeDislikeResponse restorePassword(RestoreRequest restoreRequest) {
-    LikeDislikeResponse response = new LikeDislikeResponse();
+  public GeneralResponse restorePassword(RestoreRequest restoreRequest) {
+    GeneralResponse response = new GeneralResponse();
     String HASH = UUID.randomUUID().toString();
 
     Optional<User> optionalUser = userRepository.findUserByEmail(restoreRequest.getEmail());
@@ -75,13 +75,13 @@ public class EmailService {
 
   public PasswordResponse password(PasswordRequest passwordRequest) {
     PasswordResponse passwordResponse = new PasswordResponse();
-    PasswordErrors passwordErrors = new PasswordErrors();
+    PasswordErrorsDto passwordErrorsDto = new PasswordErrorsDto();
     BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
 
     User user = userRepository.findByCode(passwordRequest.getCode());
     if (user == null) {
       passwordResponse.setResult(false);
-      passwordErrors.setCode(
+      passwordErrorsDto.setCode(
           "Ссылка для восстановления пароля устарела. <a href= \"/auth/restore\"> Запросить ссылку снова</a>");
     } else {
 
@@ -89,7 +89,7 @@ public class EmailService {
         user.setPassword(encoder.encode(passwordRequest.getPassword()));
       } else {
         passwordResponse.setResult(false);
-        passwordErrors.setPassword("Пароль короче 6-ти символов");
+        passwordErrorsDto.setPassword("Пароль короче 6-ти символов");
       }
 
       CaptchaCodes captchaCodes = captchaCodeRepository.findBySecret(
@@ -99,10 +99,10 @@ public class EmailService {
         userRepository.save(user);
       } else {
         passwordResponse.setResult(false);
-        passwordErrors.setCaptcha("Код с картинки введен неверно");
+        passwordErrorsDto.setCaptcha("Код с картинки введен неверно");
       }
     }
-    passwordResponse.setErrors(passwordErrors);
+    passwordResponse.setErrors(passwordErrorsDto);
     return passwordResponse;
   }
 

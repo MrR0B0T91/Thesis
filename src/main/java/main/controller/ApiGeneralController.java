@@ -9,7 +9,7 @@ import main.api.requset.SettingsRequest;
 import main.api.response.CalendarResponse;
 import main.api.response.CommentResponse;
 import main.api.response.InitResponse;
-import main.api.response.LikeDislikeResponse;
+import main.api.response.GeneralResponse;
 import main.api.response.ProfileResponse;
 import main.api.response.SettingsResponse;
 import main.api.response.StatisticsResponse;
@@ -117,7 +117,7 @@ public class ApiGeneralController {
 
   @PostMapping("/moderation")
   @PreAuthorize("hasAuthority('user:moderate')")
-  public LikeDislikeResponse moderatePost(@RequestBody ModerateRequest moderateRequest,
+  public GeneralResponse moderatePost(@RequestBody ModerateRequest moderateRequest,
       Principal principal) {
     return postService.moderatePost(moderateRequest, principal);
   }

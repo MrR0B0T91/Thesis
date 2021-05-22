@@ -2,7 +2,7 @@ package main.service;
 
 import java.util.List;
 import main.api.response.CheckResponse;
-import main.api.response.UserLoginResponse;
+import main.dto.UserLoginDto;
 import main.model.ModerationStatus;
 import main.model.Posts;
 import main.model.repositories.PostRepository;
@@ -24,7 +24,7 @@ public class CheckService {
   private int moderationCount;
 
   CheckResponse checkResponse = new CheckResponse();
-  UserLoginResponse userLoginResponse = new UserLoginResponse();
+  UserLoginDto userLoginDto = new UserLoginDto();
 
   public CheckService(
       UserDetailsServiceImpl userDetailsServiceImpl,
@@ -46,20 +46,20 @@ public class CheckService {
       User user = (User) authentication.getPrincipal();
       main.model.User currentUser = userRepository.findByEmail(user.getUsername());
 
-      userLoginResponse.setId(currentUser.getId());
-      userLoginResponse.setName(currentUser.getName());
-      userLoginResponse.setPhoto(currentUser.getPhoto());
-      userLoginResponse.setEmail(currentUser.getEmail());
-      userLoginResponse.setModeration(currentUser.getIsModerator() == 1);
-      userLoginResponse.setSettings(true);
+      userLoginDto.setId(currentUser.getId());
+      userLoginDto.setName(currentUser.getName());
+      userLoginDto.setPhoto(currentUser.getPhoto());
+      userLoginDto.setEmail(currentUser.getEmail());
+      userLoginDto.setModeration(currentUser.getIsModerator() == 1);
+      userLoginDto.setSettings(true);
 
-      if (userLoginResponse.isModeration()) {
-        userLoginResponse.setModerationCount(moderationCount);
+      if (userLoginDto.isModeration()) {
+        userLoginDto.setModerationCount(moderationCount);
       } else {
-        userLoginResponse.setModerationCount(0);
+        userLoginDto.setModerationCount(0);
       }
       checkResponse.setResult(true);
-      checkResponse.setUser(userLoginResponse);
+      checkResponse.setUser(userLoginDto);
     } else {
       checkResponse.setResult(false);
     }

@@ -11,7 +11,7 @@ import javax.imageio.ImageIO;
 import javax.servlet.http.HttpServletRequest;
 import main.api.requset.ProfileRequest;
 import main.api.response.ProfileResponse;
-import main.dto.ProfileErrors;
+import main.dto.ProfileErrorsDto;
 import main.model.repositories.UserRepository;
 import org.apache.commons.io.FileUtils;
 import org.imgscalr.Scalr;
@@ -35,12 +35,12 @@ public class ProfileService {
       String password, HttpServletRequest request, Principal principal) {
 
     ProfileResponse profileResponse = new ProfileResponse();
-    ProfileErrors profileErrors = new ProfileErrors();
+    ProfileErrorsDto profileErrorsDto = new ProfileErrorsDto();
     BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder(12);
 
     if (photo.length > LIMIT_TO_UPLOAD) {
-      profileErrors.setPhoto("Фото слишком большое, нужно меньше 5 Мб");
-      profileResponse.setErrors(profileErrors);
+      profileErrorsDto.setPhoto("Фото слишком большое, нужно меньше 5 Мб");
+      profileResponse.setErrors(profileErrorsDto);
       profileResponse.setResult(false);
     } else {
 
@@ -68,7 +68,7 @@ public class ProfileService {
         modelUser.setEmail(email);
         profileResponse.setResult(true);
       } else {
-        profileErrors.setEmail("Этот e-mail уже зарегестрирован");
+        profileErrorsDto.setEmail("Этот e-mail уже зарегестрирован");
         profileResponse.setResult(false);
       }
 
@@ -95,7 +95,7 @@ public class ProfileService {
     main.model.User currentUser = userRepository.findByEmail(user.getUsername());
 
     ProfileResponse profileResponse = new ProfileResponse();
-    ProfileErrors profileErrors = new ProfileErrors();
+    ProfileErrorsDto profileErrorsDto = new ProfileErrorsDto();
     BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder(12);
 
     String newName = profileRequest.getName();
@@ -113,7 +113,7 @@ public class ProfileService {
       currentUser.setEmail(newEmail);
       profileResponse.setResult(true);
     } else {
-      profileErrors.setEmail("Этот e-mail уже зарегестрирован");
+      profileErrorsDto.setEmail("Этот e-mail уже зарегестрирован");
       profileResponse.setResult(false);
     }
 

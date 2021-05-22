@@ -16,14 +16,14 @@ import main.api.requset.ModerateRequest;
 import main.api.requset.PostRequest;
 import main.api.response.CalendarResponse;
 import main.api.response.CommentResponse;
-import main.api.response.LikeDislikeResponse;
+import main.api.response.GeneralResponse;
 import main.api.response.PostByIdResponse;
-import main.api.response.PostErrorResponse;
 import main.api.response.PostResponse;
 import main.api.response.PostingResponse;
 import main.dto.CommentDto;
 import main.dto.CommentUserDto;
 import main.dto.PostDto;
+import main.dto.PostErrorDto;
 import main.dto.UserDto;
 import main.model.ModerationStatus;
 import main.model.PostComments;
@@ -56,6 +56,7 @@ public class PostService {
   private final int MAX_LENGTH = 150;
   private final int MIN_TITLE_LENGTH = 3;
   private final int MIN_TEXT_LENGTH = 10;
+  public static final int moderatorId = 1;
 
   public PostService(PostRepository postRepository,
       UserRepository userRepository,
@@ -67,6 +68,7 @@ public class PostService {
     this.postVoteRepository = postVoteRepository;
   }
 
+
   public PostResponse getPosts(int offset, int limit, String mode) {
 
     PostResponse postResponse = new PostResponse();
@@ -74,36 +76,24 @@ public class PostService {
     if (mode.equals("recent")) {
       sort = Sort.by("time").descending();
       Page<Posts> recentPage = postRepository.findAll(getSortedPaging(offset, limit, sort));
-      List<Posts> postsList = recentPage.getContent();
-      List<PostDto> postDtoList =
-          postsList.stream().map(this::entityToDto).collect(Collectors.toList());
       postResponse.setCount(recentPage.getTotalElements());
-      postResponse.setPosts(postDtoList);
+      postResponse.setPosts(toPostDto(recentPage));
     }
     if (mode.equals("popular")) {
       Page<Posts> popularPage = postRepository.findPostsOrderByLikes(getPaging(offset, limit));
-      List<Posts> postsList = popularPage.getContent();
-      List<PostDto> postDtoList =
-          postsList.stream().map(this::entityToDto).collect(Collectors.toList());
       postResponse.setCount(popularPage.getTotalElements());
-      postResponse.setPosts(postDtoList);
+      postResponse.setPosts(toPostDto(popularPage));
     }
     if (mode.equals("best")) {
       Page<Posts> bestPage = postRepository.findPostsOrderByComments(getPaging(offset, limit));
-      List<Posts> postsList = bestPage.getContent();
-      List<PostDto> postDtoList =
-          postsList.stream().map(this::entityToDto).collect(Collectors.toList());
       postResponse.setCount(bestPage.getTotalElements());
-      postResponse.setPosts(postDtoList);
+      postResponse.setPosts(toPostDto(bestPage));
     }
     if (mode.equals("early")) {
       sort = Sort.by("time").ascending();
       Page<Posts> earlyPage = postRepository.findAll(getSortedPaging(offset, limit, sort));
-      List<Posts> postsList = earlyPage.getContent();
       postResponse.setCount(earlyPage.getTotalElements());
-      List<PostDto> postDtoList =
-          postsList.stream().map(this::entityToDto).collect(Collectors.toList());
-      postResponse.setPosts(postDtoList);
+      postResponse.setPosts(toPostDto(earlyPage));
     }
     return postResponse;
   }
@@ -115,18 +105,12 @@ public class PostService {
     if (query.isEmpty()) {
       sort = Sort.by("time").descending();
       Page<Posts> recentPage = postRepository.findAll(getSortedPaging(offset, limit, sort));
-      List<Posts> postsList = recentPage.getContent();
-      List<PostDto> postDtoList =
-          postsList.stream().map(this::entityToDto).collect(Collectors.toList());
       postResponse.setCount(recentPage.getTotalElements());
-      postResponse.setPosts(postDtoList);
+      postResponse.setPosts(toPostDto(recentPage));
     } else {
       Page<Posts> postsPage = postRepository.findPostsByQuery(query, getPaging(offset, limit));
-      List<Posts> postsList = postsPage.getContent();
-      List<PostDto> postDtoList =
-          postsList.stream().map(this::entityToDto).collect(Collectors.toList());
       postResponse.setCount(postsPage.getTotalElements());
-      postResponse.setPosts(postDtoList);
+      postResponse.setPosts(toPostDto(postsPage));
     }
     return postResponse;
   }
@@ -340,26 +324,25 @@ public class PostService {
     Page<Posts> recentPage = postRepository
         .findModeratedPosts(currentUser.getId(), moderationStatus,
             getSortedPaging(offset, limit, sort));
-    List<Posts> postsList = recentPage.getContent();
-    List<PostDto> postDtoList =
-        postsList.stream().map(this::entityToDto).collect(Collectors.toList());
     postResponse.setCount(recentPage.getTotalElements());
-    postResponse.setPosts(postDtoList);
+    postResponse.setPosts(toPostDto(recentPage));
 
     return postResponse;
   }
 
-  public LikeDislikeResponse moderatePost(ModerateRequest moderateRequest, Principal principal) {
-    LikeDislikeResponse response = new LikeDislikeResponse();
+  public GeneralResponse moderatePost(ModerateRequest moderateRequest, Principal principal) {
+    GeneralResponse response = new GeneralResponse();
 
     main.model.User user = userRepository.findByEmail(principal.getName());
     Posts post = postRepository.findById(moderateRequest.getPostId());
     if (user.getIsModerator() == 1) {
       if (moderateRequest.getDecision().equals("accept")) {
         post.setModerationStatus(ModerationStatus.ACCEPTED);
+        post.setTime(Calendar.getInstance());
       }
       if (moderateRequest.getDecision().equals("decline")) {
         post.setModerationStatus(ModerationStatus.DECLINED);
+        post.setTime(Calendar.getInstance());
       }
       post.setModeratorId(user.getId());
       postRepository.save(post);
@@ -380,43 +363,31 @@ public class PostService {
 
     if (status.equals("inactive")) {
       sort = Sort.by("time").descending();
-      Page<Posts> inActivePosts = postRepository
+      Page<Posts> inactivePosts = postRepository
           .findInactivePosts(currentUser, getSortedPaging(offset, limit, sort));
-      List<Posts> postsList = inActivePosts.getContent();
-      List<PostDto> postDtoList =
-          postsList.stream().map(this::entityToDto).collect(Collectors.toList());
-      postResponse.setCount(inActivePosts.getTotalElements());
-      postResponse.setPosts(postDtoList);
+      postResponse.setCount(inactivePosts.getTotalElements());
+      postResponse.setPosts(toPostDto(inactivePosts));
     }
     if (status.equals("pending")) {
       sort = Sort.by("time").descending();
       Page<Posts> pendingPosts = postRepository
           .findPendingPosts(currentUser, getSortedPaging(offset, limit, sort));
-      List<Posts> postsList = pendingPosts.getContent();
-      List<PostDto> postDtoList =
-          postsList.stream().map(this::entityToDto).collect(Collectors.toList());
       postResponse.setCount(pendingPosts.getTotalElements());
-      postResponse.setPosts(postDtoList);
+      postResponse.setPosts(toPostDto(pendingPosts));
     }
     if (status.equals("declined")) {
       sort = Sort.by("time").descending();
       Page<Posts> declinedPosts = postRepository
           .findDeclinedPosts(currentUser, getSortedPaging(offset, limit, sort));
-      List<Posts> postsList = declinedPosts.getContent();
-      List<PostDto> postDtoList =
-          postsList.stream().map(this::entityToDto).collect(Collectors.toList());
       postResponse.setCount(declinedPosts.getTotalElements());
-      postResponse.setPosts(postDtoList);
+      postResponse.setPosts(toPostDto(declinedPosts));
     }
     if (status.equals("published")) {
       sort = Sort.by("time").descending();
       Page<Posts> publishedPosts = postRepository
           .findPublishedPosts(currentUser, getSortedPaging(offset, limit, sort));
-      List<Posts> postsList = publishedPosts.getContent();
-      List<PostDto> postDtoList =
-          postsList.stream().map(this::entityToDto).collect(Collectors.toList());
       postResponse.setCount(publishedPosts.getTotalElements());
-      postResponse.setPosts(postDtoList);
+      postResponse.setPosts(toPostDto(publishedPosts));
     }
     return postResponse;
   }
@@ -427,18 +398,18 @@ public class PostService {
 
     PostingResponse postingResponse = new PostingResponse();
     Posts post = new Posts();
-    PostErrorResponse postErrorResponse = new PostErrorResponse();
+    PostErrorDto postErrorDto = new PostErrorDto();
 
     if ((postRequest.getTitle().length() < MIN_TITLE_LENGTH) || (postRequest.getText().length()
         < MIN_TEXT_LENGTH)) {
       if (postRequest.getTitle().length() < MIN_TITLE_LENGTH) {
-        postErrorResponse.setTitle("Заголовок не установлен");
+        postErrorDto.setTitle("Заголовок не установлен");
       }
       if (postRequest.getText().length() < MIN_TEXT_LENGTH) {
-        postErrorResponse.setText("Текст публикации слишком крорткий");
+        postErrorDto.setText("Текст публикации слишком крорткий");
       }
       postingResponse.setResult(false);
-      postingResponse.setErrors(postErrorResponse);
+      postingResponse.setErrors(postErrorDto);
     } else {
 
       Calendar currentTime = Calendar.getInstance();
@@ -456,13 +427,8 @@ public class PostService {
       post.setModerationStatus(ModerationStatus.NEW);
       post.setUser(currentUser);
       List<String> stringTags = postRequest.getTags();
-      List<Tags> tagList = new ArrayList<>();
-      for (String tagName : stringTags) {
-        Tags tag = new Tags();
-        tag.setName(tagName);
-        tagList.add(tag);
-      }
-      post.setTagsList(tagList);
+      post.setTagsList(makeTagsList(stringTags));
+      post.setModeratorId(moderatorId);
 
       postRepository.save(post);
       postingResponse.setResult(true);
@@ -476,18 +442,18 @@ public class PostService {
 
     PostingResponse postingResponse = new PostingResponse();
     Posts post = postRepository.findById(id);
-    PostErrorResponse postErrorResponse = new PostErrorResponse();
+    PostErrorDto postErrorDto = new PostErrorDto();
 
     if ((postRequest.getTitle().length() < MIN_TITLE_LENGTH) || (postRequest.getText().length()
         < MIN_TEXT_LENGTH)) {
       if (postRequest.getTitle().length() < MIN_TITLE_LENGTH) {
-        postErrorResponse.setTitle("Заголовок не установлен");
+        postErrorDto.setTitle("Заголовок не установлен");
       }
       if (postRequest.getText().length() < MIN_TEXT_LENGTH) {
-        postErrorResponse.setText("Текст публикации слишком крорткий");
+        postErrorDto.setText("Текст публикации слишком крорткий");
       }
       postingResponse.setResult(false);
-      postingResponse.setErrors(postErrorResponse);
+      postingResponse.setErrors(postErrorDto);
     } else {
 
       Calendar currentTime = Calendar.getInstance();
@@ -504,13 +470,7 @@ public class PostService {
       post.setText(postRequest.getText());
       post.setUser(currentUser);
       List<String> stringTags = postRequest.getTags();
-      List<Tags> tagList = new ArrayList<>();
-      for (String tagName : stringTags) {
-        Tags tag = new Tags();
-        tag.setName(tagName);
-        tagList.add(tag);
-      }
-      post.setTagsList(tagList);
+      post.setTagsList(makeTagsList(stringTags));
 
       boolean isAuthor = currentUser.getName().equals(post.getUser().getName());
       boolean isModerator = currentUser.getIsModerator() == 1;
@@ -552,11 +512,11 @@ public class PostService {
     return commentResponse;
   }
 
-  public LikeDislikeResponse like(LikeDislikeRequest likeRequest, Principal principal) {
+  public GeneralResponse like(LikeDislikeRequest likeRequest, Principal principal) {
 
     main.model.User currentUser = userRepository.findByEmail(principal.getName());
 
-    LikeDislikeResponse likeDislikeResponse = new LikeDislikeResponse();
+    GeneralResponse generalResponse = new GeneralResponse();
     PostVotes postVote = new PostVotes();
 
     int postId = likeRequest.getPostId();
@@ -571,7 +531,7 @@ public class PostService {
       postVote.setValue(1);
 
       postVoteRepository.save(postVote);
-      likeDislikeResponse.setResult(true);
+      generalResponse.setResult(true);
     }
     if (optionalPostVote.isPresent()) {
       PostVotes vote = optionalPostVote.get();
@@ -579,20 +539,20 @@ public class PostService {
       int currentUserId = currentUser.getId();
       if ((voteUserId == currentUserId) && (vote.getValue() == -1)) {
         vote.setValue(1);
-        likeDislikeResponse.setResult(true);
+        generalResponse.setResult(true);
       } else {
-        likeDislikeResponse.setResult(false);
+        generalResponse.setResult(false);
       }
       postVoteRepository.save(vote);
     }
-    return likeDislikeResponse;
+    return generalResponse;
   }
 
-  public LikeDislikeResponse dislike(LikeDislikeRequest dislikeRequest, Principal principal) {
+  public GeneralResponse dislike(LikeDislikeRequest dislikeRequest, Principal principal) {
 
     main.model.User currentUser = userRepository.findByEmail(principal.getName());
 
-    LikeDislikeResponse likeDislikeResponse = new LikeDislikeResponse();
+    GeneralResponse generalResponse = new GeneralResponse();
     PostVotes postVote = new PostVotes();
 
     int postId = dislikeRequest.getPostId();
@@ -607,7 +567,7 @@ public class PostService {
       postVote.setValue(-1);
 
       postVoteRepository.save(postVote);
-      likeDislikeResponse.setResult(true);
+      generalResponse.setResult(true);
     }
     if (optionalPostVote.isPresent()) {
       PostVotes vote = optionalPostVote.get();
@@ -615,13 +575,13 @@ public class PostService {
       int currentUserId = currentUser.getId();
       if ((voteUserId == currentUserId) && (vote.getValue() == 1)) {
         vote.setValue(-1);
-        likeDislikeResponse.setResult(true);
+        generalResponse.setResult(true);
       } else {
-        likeDislikeResponse.setResult(false);
+        generalResponse.setResult(false);
       }
       postVoteRepository.save(vote);
     }
-    return likeDislikeResponse;
+    return generalResponse;
   }
 
   private PostDto entityToDto(Posts post) {
@@ -661,6 +621,23 @@ public class PostService {
     postDto.setViewCount(post.getViewCount());
 
     return postDto;
+  }
+
+  public List<PostDto> toPostDto(Page<Posts> page) {
+    List<Posts> postsList = page.getContent();
+    List<PostDto> postDtoList =
+        postsList.stream().map(this::entityToDto).collect(Collectors.toList());
+    return postDtoList;
+  }
+
+  public List<Tags> makeTagsList(List<String> stringTags) {
+    List<Tags> tagList = new ArrayList<>();
+    for (String tagName : stringTags) {
+      Tags tag = new Tags();
+      tag.setName(tagName);
+      tagList.add(tag);
+    }
+    return tagList;
   }
 
   public Pageable getPaging(int offset, int limit) {
