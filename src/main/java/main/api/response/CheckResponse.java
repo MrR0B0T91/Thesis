@@ -1,11 +1,11 @@
 package main.api.response;
 
 import lombok.Data;
-import main.model.User;
+import main.dto.UserLoginDto;
 
 @Data
 public class CheckResponse {
 
   private boolean result;
-  private UserLoginResponse user;
+  private UserLoginDto user;
 }

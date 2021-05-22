@@ -1,9 +1,9 @@
-package main.api.response;
+package main.dto;
 
 import lombok.Data;
 
 @Data
-public class ErrorsResponse {
+public class ErrorsDto {
 
   private String email;
   private String name;

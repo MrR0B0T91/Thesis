@@ -5,7 +5,7 @@ import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import main.api.requset.RegisterRequest;
-import main.api.response.ErrorsResponse;
+import main.dto.ErrorsDto;
 import main.api.response.RegisterResponse;
 import main.model.CaptchaCodes;
 import main.model.User;
@@ -31,7 +31,7 @@ public class RegisterService {
 
   public RegisterResponse register(RegisterRequest registerRequest) {
 
-    ErrorsResponse errorsResponse = new ErrorsResponse();
+    ErrorsDto errorsDto = new ErrorsDto();
     RegisterResponse registerResponse = new RegisterResponse();
     PasswordEncoder passwordEncoder = new BCryptPasswordEncoder(12);
 
@@ -56,16 +56,16 @@ public class RegisterService {
 
     } else {
       if (checkEmail(registerRequest.getEmail())) {
-        errorsResponse.setEmail("Этот email уже зарегестрирован");
+        errorsDto.setEmail("Этот email уже зарегестрирован");
       }
       if (!checkCaptcha(registerRequest.getCaptcha(), repoCaptcha)) {
-        errorsResponse.setCaptcha("Код с картинки введен неверно");
+        errorsDto.setCaptcha("Код с картинки введен неверно");
       }
       if (!checkName(registerRequest.getName())) {
-        errorsResponse.setName("Имя указано неверно");
+        errorsDto.setName("Имя указано неверно");
       }
       registerResponse.setResult(false);
-      registerResponse.setErrors(errorsResponse);
+      registerResponse.setErrors(errorsDto);
     }
     return registerResponse;
   }

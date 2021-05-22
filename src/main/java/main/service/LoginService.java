@@ -3,7 +3,7 @@ package main.service;
 import java.util.Optional;
 import main.api.requset.LoginRequest;
 import main.api.response.LoginResponse;
-import main.api.response.UserLoginResponse;
+import main.dto.UserLoginDto;
 import main.model.repositories.UserRepository;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -28,7 +28,7 @@ public class LoginService {
 
   public LoginResponse loginUser(LoginRequest loginRequest) {
 
-    UserLoginResponse userLoginResponse = new UserLoginResponse();
+    UserLoginDto userLoginDto = new UserLoginDto();
     LoginResponse loginResponse = new LoginResponse();
     BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 
@@ -45,15 +45,15 @@ public class LoginService {
       User user = (User) auth.getPrincipal();
       main.model.User currentUser = userRepository.findByEmail(user.getUsername());
 
-      userLoginResponse.setId(currentUser.getId());
-      userLoginResponse.setEmail(currentUser.getEmail());
-      userLoginResponse.setModeration(currentUser.getIsModerator() == 1);
-      userLoginResponse.setName(currentUser.getName());
-      userLoginResponse.setPhoto(currentUser.getPhoto());
-      userLoginResponse.setSettings(currentUser.getIsModerator() == 1);
+      userLoginDto.setId(currentUser.getId());
+      userLoginDto.setEmail(currentUser.getEmail());
+      userLoginDto.setModeration(currentUser.getIsModerator() == 1);
+      userLoginDto.setName(currentUser.getName());
+      userLoginDto.setPhoto(currentUser.getPhoto());
+      userLoginDto.setSettings(currentUser.getIsModerator() == 1);
 
       loginResponse.setResult(true);
-      loginResponse.setUserLoginResponse(userLoginResponse);
+      loginResponse.setUserLoginDto(userLoginDto);
     } else {
       loginResponse.setResult(false);
     }

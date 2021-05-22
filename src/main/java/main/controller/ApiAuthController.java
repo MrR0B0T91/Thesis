@@ -6,7 +6,7 @@ import main.api.requset.RegisterRequest;
 import main.api.requset.RestoreRequest;
 import main.api.response.CaptchaResponse;
 import main.api.response.CheckResponse;
-import main.api.response.LikeDislikeResponse;
+import main.api.response.GeneralResponse;
 import main.api.response.LoginResponse;
 import main.api.response.LogoutResponse;
 import main.api.response.PasswordResponse;
@@ -79,7 +79,7 @@ public class ApiAuthController {
   }
 
   @PostMapping("/restore")
-  public LikeDislikeResponse restore(@RequestBody RestoreRequest restoreRequest) {
+  public GeneralResponse restore(@RequestBody RestoreRequest restoreRequest) {
     return emailService.restorePassword(restoreRequest);
   }
 

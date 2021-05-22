@@ -1,10 +1,11 @@
 package main.api.response;
 
 import lombok.Data;
+import main.dto.PostErrorDto;
 
 @Data
 public class PostingResponse {
 
   private boolean result;
-  private PostErrorResponse errors;
+  private PostErrorDto errors;
 }

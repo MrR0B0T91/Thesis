@@ -1,8 +1,9 @@
 package main.controller;
 
+import java.security.Principal;
 import main.api.requset.LikeDislikeRequest;
 import main.api.requset.PostRequest;
-import main.api.response.LikeDislikeResponse;
+import main.api.response.GeneralResponse;
 import main.api.response.PostByIdResponse;
 import main.api.response.PostResponse;
 import main.api.response.PostingResponse;
@@ -86,26 +87,28 @@ public class ApiPostController {
 
   @PostMapping
   @PreAuthorize("hasAuthority('user:write')")
-  public PostingResponse tweetPost(@RequestBody PostRequest postRequest) {
-    return postService.makePost(postRequest);
+  public PostingResponse tweetPost(@RequestBody PostRequest postRequest, Principal principal) {
+    return postService.makePost(postRequest, principal);
   }
 
   @PutMapping("/{id}")
   @PreAuthorize("hasAuthority('user:write')")
   public PostingResponse updatePost(@PathVariable int id,
-      @RequestBody PostRequest postRequest) {
-    return postService.updatePost(id, postRequest);
+      @RequestBody PostRequest postRequest, Principal principal) {
+    return postService.updatePost(id, postRequest, principal);
   }
 
   @PostMapping("/like")
   @PreAuthorize("hasAuthority('user:write')")
-  public LikeDislikeResponse like(@RequestBody LikeDislikeRequest likeDislikeRequest) {
-    return postService.like(likeDislikeRequest);
+  public GeneralResponse like(@RequestBody LikeDislikeRequest likeDislikeRequest,
+      Principal principal) {
+    return postService.like(likeDislikeRequest, principal);
   }
 
   @PostMapping("/dislike")
   @PreAuthorize("hasAuthority('user:write')")
-  public LikeDislikeResponse dislike(@RequestBody LikeDislikeRequest likeDislikeRequest) {
-    return postService.dislike(likeDislikeRequest);
+  public GeneralResponse dislike(@RequestBody LikeDislikeRequest likeDislikeRequest,
+      Principal principal) {
+    return postService.dislike(likeDislikeRequest, principal);
   }
 }

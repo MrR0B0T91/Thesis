@@ -3,7 +3,7 @@ package main.dto;
 import lombok.Data;
 
 @Data
-public class PasswordErrors {
+public class PasswordErrorsDto {
 
   private String code;
   private String password;
