@@ -1,9 +1,15 @@
 package main.model;
 
-import lombok.Data;
-
-import javax.persistence.*;
 import java.util.Date;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
+import javax.persistence.Table;
+import lombok.Data;
 
 @Data
 @Entity
@@ -17,8 +23,9 @@ public class PostVotes {
   @Column(name = "user_id", nullable = false, columnDefinition = "INT")
   private int userId;
 
-  @Column(name = "post_id", nullable = false, columnDefinition = "INT")
-  private int postId;
+  @ManyToOne
+  @JoinColumn(name = "post_id", nullable = false)
+  private Posts post;
 
   @Column(nullable = false, columnDefinition = "DATETIME")
   private Date time;
