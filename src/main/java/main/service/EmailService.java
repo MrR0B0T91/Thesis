@@ -87,6 +87,7 @@ public class EmailService {
 
       if (passwordRequest.getPassword().length() >= 6) {
         user.setPassword(encoder.encode(passwordRequest.getPassword()));
+        passwordResponse.setResult(true);
       } else {
         passwordResponse.setResult(false);
         passwordErrorsDto.setPassword("Пароль короче 6-ти символов");

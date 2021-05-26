@@ -27,8 +27,9 @@ public class PostComments {
   @JoinColumn(name = "user_id", nullable = false)
   private User user;
 
-  @Column(name = "post_id", nullable = false, columnDefinition = "INT")
-  private int postId;
+  @ManyToOne
+  @JoinColumn(name = "post_id", nullable = false)
+  private Posts post;
 
   @Column(nullable = false, columnDefinition = "DATETIME")
   private Date time;

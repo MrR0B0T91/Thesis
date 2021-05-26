@@ -14,7 +14,7 @@ import lombok.Data;
 public class Tag2Post {
 
   @Id
-  @GeneratedValue(strategy = GenerationType.AUTO)
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
   private int id;
 
   @Column(name = "post_id", nullable = false, columnDefinition = "INT")

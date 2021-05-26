@@ -9,6 +9,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Optional;
+import java.util.TimeZone;
 import java.util.stream.Collectors;
 import main.api.requset.CommentRequest;
 import main.api.requset.LikeDislikeRequest;
@@ -29,10 +30,13 @@ import main.model.ModerationStatus;
 import main.model.PostComments;
 import main.model.PostVotes;
 import main.model.Posts;
+import main.model.Tag2Post;
 import main.model.Tags;
 import main.model.repositories.PostCommentRepository;
 import main.model.repositories.PostRepository;
 import main.model.repositories.PostVoteRepository;
+import main.model.repositories.Tag2PostRepository;
+import main.model.repositories.TagRepository;
 import main.model.repositories.UserRepository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -51,6 +55,8 @@ public class PostService {
   private final UserRepository userRepository;
   private final PostCommentRepository postCommentRepository;
   private final PostVoteRepository postVoteRepository;
+  private final TagRepository tagRepository;
+  private final Tag2PostRepository tag2PostRepository;
 
   private Sort sort;
   private final int MAX_LENGTH = 150;
@@ -61,11 +67,14 @@ public class PostService {
   public PostService(PostRepository postRepository,
       UserRepository userRepository,
       PostCommentRepository postCommentRepository,
-      PostVoteRepository postVoteRepository) {
+      PostVoteRepository postVoteRepository, TagRepository tagRepository,
+      Tag2PostRepository tag2PostRepository) {
     this.postRepository = postRepository;
     this.userRepository = userRepository;
     this.postCommentRepository = postCommentRepository;
     this.postVoteRepository = postVoteRepository;
+    this.tagRepository = tagRepository;
+    this.tag2PostRepository = tag2PostRepository;
   }
 
 
@@ -286,10 +295,12 @@ public class PostService {
         } else {
           postByIdResponse.setViewCount(++viewCount);
         }
+        post.setViewCount(viewCount);
+        Calendar setTime = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
+        setTime.setTime(post.getTime().getTime());
+        post.setTime(setTime);
+        postRepository.save(post);
       }
-
-      post.setViewCount(viewCount);
-      postRepository.save(post);
 
       postByIdResponse.setId(post.getId());
       postByIdResponse.setTimestamp(unixTime);
@@ -338,11 +349,15 @@ public class PostService {
     if (user.getIsModerator() == 1) {
       if (moderateRequest.getDecision().equals("accept")) {
         post.setModerationStatus(ModerationStatus.ACCEPTED);
-        post.setTime(Calendar.getInstance());
+        Calendar setTime = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
+        setTime.setTime(post.getTime().getTime());
+        post.setTime(setTime);
       }
       if (moderateRequest.getDecision().equals("decline")) {
         post.setModerationStatus(ModerationStatus.DECLINED);
-        post.setTime(Calendar.getInstance());
+        Calendar setTime = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
+        setTime.setTime(post.getTime().getTime());
+        post.setTime(setTime);
       }
       post.setModeratorId(user.getId());
       postRepository.save(post);
@@ -412,8 +427,8 @@ public class PostService {
       postingResponse.setErrors(postErrorDto);
     } else {
 
-      Calendar currentTime = Calendar.getInstance();
-      Calendar postTime = Calendar.getInstance();
+      Calendar currentTime = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
+      Calendar postTime = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
       postTime.setTimeInMillis(postRequest.getTimestamp());
 
       if (postTime.before(currentTime)) {
@@ -427,9 +442,9 @@ public class PostService {
       post.setModerationStatus(ModerationStatus.NEW);
       post.setUser(currentUser);
       List<String> stringTags = postRequest.getTags();
-      post.setTagsList(makeTagsList(stringTags));
       post.setModeratorId(moderatorId);
-
+      postRepository.save(post);
+      post.setTagsList(makeTagsList(stringTags, post));
       postRepository.save(post);
       postingResponse.setResult(true);
     }
@@ -455,9 +470,8 @@ public class PostService {
       postingResponse.setResult(false);
       postingResponse.setErrors(postErrorDto);
     } else {
-
-      Calendar currentTime = Calendar.getInstance();
-      Calendar postTime = Calendar.getInstance();
+      Calendar currentTime = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
+      Calendar postTime = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
       postTime.setTimeInMillis(postRequest.getTimestamp());
 
       if (postTime.before(currentTime)) {
@@ -470,7 +484,7 @@ public class PostService {
       post.setText(postRequest.getText());
       post.setUser(currentUser);
       List<String> stringTags = postRequest.getTags();
-      post.setTagsList(makeTagsList(stringTags));
+      post.setTagsList(makeTagsList(stringTags, post));
 
       boolean isAuthor = currentUser.getName().equals(post.getUser().getName());
       boolean isModerator = currentUser.getIsModerator() == 1;
@@ -500,7 +514,7 @@ public class PostService {
 
     Optional<Posts> optionalPost = postRepository.findPostById(postId);
     if (optionalPost.isPresent()) {
-      postComment.setPostId(postId);
+      postComment.setPost(optionalPost.get());
       postComment.setParentId(parentId);
       postComment.setUser(currentUser);
       postComment.setTime(new Date());
@@ -519,13 +533,13 @@ public class PostService {
     GeneralResponse generalResponse = new GeneralResponse();
     PostVotes postVote = new PostVotes();
 
-    int postId = likeRequest.getPostId();
-    Optional<PostVotes> optionalPostVote = postVoteRepository.findByPostId(postId,
+    Posts post = postRepository.findById(likeRequest.getPostId());
+    Optional<PostVotes> optionalPostVote = postVoteRepository.findByPostId(post,
         currentUser.getId());
 
     if (optionalPostVote.isEmpty()) {
 
-      postVote.setPostId(postId);
+      postVote.setPost(post);
       postVote.setUserId(currentUser.getId());
       postVote.setTime(new Date());
       postVote.setValue(1);
@@ -539,11 +553,11 @@ public class PostService {
       int currentUserId = currentUser.getId();
       if ((voteUserId == currentUserId) && (vote.getValue() == -1)) {
         vote.setValue(1);
+        postVoteRepository.save(vote);
         generalResponse.setResult(true);
       } else {
         generalResponse.setResult(false);
       }
-      postVoteRepository.save(vote);
     }
     return generalResponse;
   }
@@ -555,13 +569,13 @@ public class PostService {
     GeneralResponse generalResponse = new GeneralResponse();
     PostVotes postVote = new PostVotes();
 
-    int postId = dislikeRequest.getPostId();
-    Optional<PostVotes> optionalPostVote = postVoteRepository.findByPostId(postId,
+    Posts post = postRepository.findById(dislikeRequest.getPostId());
+    Optional<PostVotes> optionalPostVote = postVoteRepository.findByPostId(post,
         currentUser.getId());
 
     if (optionalPostVote.isEmpty()) {
 
-      postVote.setPostId(postId);
+      postVote.setPost(post);
       postVote.setUserId(currentUser.getId());
       postVote.setTime(new Date());
       postVote.setValue(-1);
@@ -575,11 +589,11 @@ public class PostService {
       int currentUserId = currentUser.getId();
       if ((voteUserId == currentUserId) && (vote.getValue() == 1)) {
         vote.setValue(-1);
+        postVoteRepository.save(vote);
         generalResponse.setResult(true);
       } else {
         generalResponse.setResult(false);
       }
-      postVoteRepository.save(vote);
     }
     return generalResponse;
   }
@@ -630,12 +644,21 @@ public class PostService {
     return postDtoList;
   }
 
-  public List<Tags> makeTagsList(List<String> stringTags) {
+  public List<Tags> makeTagsList(List<String> stringTags, Posts post) {
     List<Tags> tagList = new ArrayList<>();
     for (String tagName : stringTags) {
-      Tags tag = new Tags();
-      tag.setName(tagName);
-      tagList.add(tag);
+      Optional<Tags> optionalTag = tagRepository.findTagByName(tagName);
+      if (optionalTag.isEmpty()) {
+        Tags tag = new Tags();
+        tag.setName(tagName);
+        tagList.add(tag);
+      } else {
+        Tags repoTag = optionalTag.get();
+        Tag2Post tag2Post = new Tag2Post();
+        tag2Post.setTagId(repoTag.getId());
+        tag2Post.setPostId(post.getId());
+        tag2PostRepository.save(tag2Post);
+      }
     }
     return tagList;
   }
