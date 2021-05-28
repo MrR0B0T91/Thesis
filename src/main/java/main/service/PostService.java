@@ -4,7 +4,6 @@ import java.security.Principal;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -165,7 +164,13 @@ public class PostService {
       Calendar postTime = post.getTime();
 
       if (postTime.before(endPoint) && (postTime.after(startPoint))) {
-        posts.put(dateFormat.format(postTime.getTime()), Collections.frequency(yearList, post));
+        String key = dateFormat.format(postTime.getTime());
+        if (posts.containsKey(key)) {
+          posts.put(key,
+              posts.get(key) + 1);
+        } else {
+          posts.put(key, 1);
+        }
       }
     }
 
