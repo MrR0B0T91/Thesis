@@ -62,7 +62,7 @@ public class PostService {
   private final int MAX_LENGTH = 150;
   private final int MIN_TITLE_LENGTH = 3;
   private final int MIN_TEXT_LENGTH = 10;
-  public static final int moderatorId = 1;
+  public static final int moderatorId = 5;
 
   public PostService(PostRepository postRepository,
       UserRepository userRepository,
