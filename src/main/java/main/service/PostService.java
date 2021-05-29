@@ -165,7 +165,13 @@ public class PostService {
       Calendar postTime = post.getTime();
 
       if (postTime.before(endPoint) && (postTime.after(startPoint))) {
-        posts.put(dateFormat.format(postTime.getTime()), Collections.frequency(yearList, post));
+        String key = dateFormat.format(postTime.getTime());
+        if (posts.containsKey(key)) {
+          posts.put(key,
+              posts.get(key) + 1);
+        } else {
+          posts.put(key, 1);
+        }
       }
     }
 
