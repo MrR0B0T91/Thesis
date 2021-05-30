@@ -5,8 +5,6 @@ spring.jpa.hibernate.ddl-auto: validate
 spring.jpa.properties.hibernate.dialect: org.hibernate.dialect.MySQL8Dialect
 server.port: ${PORT:8080}
 
-spring.liquibase.change-log: classpath:db/changelog/db.changelog-master-1.0.yaml
-
 blog.title: MoviePub
 blog.subtitle: Отзывы о фильмах
 blog.phone: +7 903 555-55-55
