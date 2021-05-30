@@ -520,7 +520,7 @@ public class PostService {
 
     Optional<Posts> optionalPost = postRepository.findPostById(postId);
     if (optionalPost.isPresent()) {
-      postComment.setPost(optionalPost.get());
+      postComment.setPosts(optionalPost.get());
       postComment.setParentId(parentId);
       postComment.setUser(currentUser);
       postComment.setTime(new Date());
