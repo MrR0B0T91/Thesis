@@ -43,7 +43,7 @@ public class EmailService {
 
       String message = String.format(
           "Hello, %s \n"
-              + "To restore password please link: http://localhost:8080/login/change-password/%s",
+              + "To restore password please link: https://movie-blog-java-skillbox.herokuapp.com/login/change-password/%s",
           user.getName(), HASH
       );
 

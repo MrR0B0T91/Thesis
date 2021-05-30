@@ -103,7 +103,7 @@ public class ApiGeneralController {
       @RequestParam(value = "name") String name,
       @RequestParam(value = "email") String email,
       @RequestParam(value = "removePhoto", defaultValue = "0") int removePhoto,
-      @RequestParam(value = "password") String password,
+      @RequestParam(value = "password", required = false) String password,
       HttpServletRequest httpServletRequest, Principal principal) {
     return profileService
         .multipartProfile(photo, name, email, removePhoto, password, httpServletRequest, principal);
