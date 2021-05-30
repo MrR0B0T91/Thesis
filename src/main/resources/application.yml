@@ -15,6 +15,6 @@ blog.copyright: Квентин Тарантино
 blog.copyrightFrom: 1991
 
 spring.mail.host: ${MAIL_HOST:smtp.mailtrap.io}
-spring.mail.port: ${PORT:2525}
+spring.mail.port: ${SMTP_PORT:2525}
 spring.mail.username: ${LOGIN:e814c71ebd0bc0}
 spring.mail.password: ${PASSWORD:634dc3bf27b195}
