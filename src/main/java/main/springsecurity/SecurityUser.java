@@ -15,6 +15,7 @@ public class SecurityUser implements UserDetails {
   private final String password;
   private final List<SimpleGrantedAuthority> authorities;
 
+
   @Override
   public Collection<? extends GrantedAuthority> getAuthorities() {
     return authorities;
