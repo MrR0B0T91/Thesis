@@ -29,7 +29,7 @@ public class PostComments {
 
   @ManyToOne
   @JoinColumn(name = "post_id", nullable = false)
-  private Posts posts;
+  private Posts post;
 
   @Column(nullable = false, columnDefinition = "DATETIME")
   private Date time;

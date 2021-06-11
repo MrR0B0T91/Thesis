@@ -60,7 +60,7 @@ public class Posts {
   @OneToMany(mappedBy = "post", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
   private List<PostVotes> postVoteList;
 
-  @OneToMany(mappedBy = "posts", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+  @OneToMany(mappedBy = "post", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
   private List<PostComments> postCommentsList;
 
   @ManyToMany(cascade = CascadeType.ALL)
