@@ -6,6 +6,7 @@ import java.util.Base64;
 import java.util.Calendar;
 import java.util.List;
 import java.util.Random;
+import java.util.TimeZone;
 import main.api.response.CaptchaResponse;
 import main.model.CaptchaCodes;
 import main.model.repositories.CaptchaCodeRepository;
@@ -38,7 +39,7 @@ public class CaptchaService {
 
     CaptchaCodes captcha = new CaptchaCodes();
 
-    Calendar currentDate = Calendar.getInstance();
+    Calendar currentDate = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
     captcha.setCode(token);
     captcha.setSecretCode(secret);
     captcha.setTime(currentDate);
@@ -67,7 +68,7 @@ public class CaptchaService {
 
   private void checkCaptchaCodes(List<CaptchaCodes> captchaCodesList) {
 
-    Calendar currentDate = Calendar.getInstance();
+    Calendar currentDate = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
     for (CaptchaCodes captchaCode : captchaCodesList) {
       Calendar captchaDate = captchaCode.getTime();
       int captchaHour = captchaDate.get(Calendar.HOUR);

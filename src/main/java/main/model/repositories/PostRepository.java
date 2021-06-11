@@ -3,7 +3,7 @@ package main.model.repositories;
 import java.util.Calendar;
 import java.util.List;
 import java.util.Optional;
-import main.model.ModerationStatus;
+import main.model.enums.ModerationStatus;
 import main.model.Posts;
 import main.model.User;
 import org.springframework.data.domain.Page;

@@ -4,7 +4,6 @@ import java.security.Principal;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -26,7 +25,7 @@ import main.dto.CommentUserDto;
 import main.dto.PostDto;
 import main.dto.PostErrorDto;
 import main.dto.UserDto;
-import main.model.ModerationStatus;
+import main.model.enums.ModerationStatus;
 import main.model.PostComments;
 import main.model.PostVotes;
 import main.model.Posts;
@@ -130,7 +129,7 @@ public class PostService {
     HashMap<String, Integer> posts = new HashMap<>();
     CalendarResponse calendarResponse = new CalendarResponse();
 
-    Calendar currentDate = Calendar.getInstance();
+    Calendar currentDate = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
 
     List<Posts> yearList = postRepository.findPostsByYear(currentDate);
 
@@ -147,8 +146,8 @@ public class PostService {
 
     int parsedYear = Integer.parseInt(year);
 
-    Calendar endPoint = Calendar.getInstance();
-    Calendar startPoint = Calendar.getInstance();
+    Calendar endPoint = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
+    Calendar startPoint = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
 
     endPoint.set(Calendar.YEAR, parsedYear);
     endPoint.set(Calendar.MONTH, Calendar.DECEMBER);
@@ -288,7 +287,7 @@ public class PostService {
       if (!(authentication instanceof AnonymousAuthenticationToken)) {
 
         String currentUserName = authentication.getName();
-        String authorName = post.getUser().getName();
+        String authorName = post.getUser().getEmail();
 
         User user = (User) authentication.getPrincipal();
         main.model.User currentUser = userRepository.findByEmail(user.getUsername());

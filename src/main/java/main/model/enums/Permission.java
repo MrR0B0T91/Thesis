@@ -1,4 +1,4 @@
-package main.model;
+package main.model.enums;
 
 public enum Permission {
   USER("user:write"),
