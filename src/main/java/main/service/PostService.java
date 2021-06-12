@@ -25,12 +25,14 @@ import main.dto.CommentUserDto;
 import main.dto.PostDto;
 import main.dto.PostErrorDto;
 import main.dto.UserDto;
-import main.model.enums.ModerationStatus;
+import main.model.GlobalSettings;
 import main.model.PostComments;
 import main.model.PostVotes;
 import main.model.Posts;
 import main.model.Tag2Post;
 import main.model.Tags;
+import main.model.enums.ModerationStatus;
+import main.model.repositories.GlobalSettingsRepository;
 import main.model.repositories.PostCommentRepository;
 import main.model.repositories.PostRepository;
 import main.model.repositories.PostVoteRepository;
@@ -56,6 +58,7 @@ public class PostService {
   private final PostVoteRepository postVoteRepository;
   private final TagRepository tagRepository;
   private final Tag2PostRepository tag2PostRepository;
+  private final GlobalSettingsRepository globalSettingsRepository;
 
   private Sort sort;
   private final int MAX_LENGTH = 150;
@@ -67,13 +70,15 @@ public class PostService {
       UserRepository userRepository,
       PostCommentRepository postCommentRepository,
       PostVoteRepository postVoteRepository, TagRepository tagRepository,
-      Tag2PostRepository tag2PostRepository) {
+      Tag2PostRepository tag2PostRepository,
+      GlobalSettingsRepository globalSettingsRepository) {
     this.postRepository = postRepository;
     this.userRepository = userRepository;
     this.postCommentRepository = postCommentRepository;
     this.postVoteRepository = postVoteRepository;
     this.tagRepository = tagRepository;
     this.tag2PostRepository = tag2PostRepository;
+    this.globalSettingsRepository = globalSettingsRepository;
   }
 
 
@@ -441,10 +446,17 @@ public class PostService {
       } else {
         post.setTime(postTime);
       }
+
+      GlobalSettings postPremoderation = globalSettingsRepository.findByCode("POST_PREMODERATION");
+      if (postPremoderation.getValue().equals("YES")) {
+        post.setModerationStatus(ModerationStatus.NEW);
+      } else {
+        post.setModerationStatus(ModerationStatus.ACCEPTED);
+      }
+
       post.setIsActive(postRequest.getActive());
       post.setTitle(postRequest.getTitle());
       post.setText(postRequest.getText());
-      post.setModerationStatus(ModerationStatus.NEW);
       post.setUser(currentUser);
       List<String> stringTags = postRequest.getTags();
       post.setModeratorId(moderatorId);
@@ -518,11 +530,12 @@ public class PostService {
     String commentText = commentRequest.getText();
 
     Optional<Posts> optionalPost = postRepository.findPostById(postId);
+    Calendar currentTime = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
     if (optionalPost.isPresent()) {
-      postComment.setPost(optionalPost.get());
+      postComment.setPosts(optionalPost.get());
       postComment.setParentId(parentId);
       postComment.setUser(currentUser);
-      postComment.setTime(new Date());
+      postComment.setTime(currentTime.getTime());
       postComment.setText(commentText);
 
       postCommentRepository.save(postComment);
