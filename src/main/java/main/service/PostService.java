@@ -442,6 +442,7 @@ public class PostService {
       postTime.setTimeInMillis(postRequest.getTimestamp());
 
       if (postTime.before(currentTime)) {
+        currentTime.roll(Calendar.HOUR, +3);
         post.setTime(currentTime);
       } else {
         post.setTime(postTime);
@@ -492,6 +493,7 @@ public class PostService {
       postTime.setTimeInMillis(postRequest.getTimestamp());
 
       if (postTime.before(currentTime)) {
+        currentTime.roll(Calendar.HOUR, +3);
         post.setTime(currentTime);
       } else {
         post.setTime(postTime);
