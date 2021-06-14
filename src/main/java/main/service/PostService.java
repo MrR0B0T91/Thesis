@@ -312,6 +312,7 @@ public class PostService {
         postRepository.save(post);
       }
 
+      postByIdResponse.setViewCount(viewCount);
       postByIdResponse.setId(post.getId());
       postByIdResponse.setTimestamp(unixTime);
       postByIdResponse.setActive(post.getIsActive());
@@ -683,12 +684,7 @@ public class PostService {
 
   public Pageable getPaging(int offset, int limit) {
     Pageable paging;
-    long count = postRepository.count();
-    long pages = count / limit;
-    int pageNumber = 0;
-    for (int i = 0; i < pages; i++) {
-      pageNumber = i + offset;
-    }
+    int pageNumber = offset / limit;
     paging = PageRequest.of(pageNumber, limit);
 
     return paging;
@@ -696,12 +692,7 @@ public class PostService {
 
   public Pageable getSortedPaging(int offset, int limit, Sort sort) {
     Pageable sortedPaging;
-    long count = postRepository.count();
-    long pages = count / limit;
-    int pageNumber = 0;
-    for (int i = 0; i < pages; i++) {
-      pageNumber = i + offset;
-    }
+    int pageNumber = offset / limit;
     sortedPaging = PageRequest.of(pageNumber, limit, sort);
 
     return sortedPaging;
