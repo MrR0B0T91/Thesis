@@ -92,12 +92,12 @@ public class PostService {
       postResponse.setCount(recentPage.getTotalElements());
       postResponse.setPosts(toPostDto(recentPage));
     }
-    if (mode.equals("popular")) {
+    if (mode.equals("best")) {
       Page<Posts> popularPage = postRepository.findPostsOrderByLikes(getPaging(offset, limit));
       postResponse.setCount(popularPage.getTotalElements());
       postResponse.setPosts(toPostDto(popularPage));
     }
-    if (mode.equals("best")) {
+    if (mode.equals("popular")) {
       Page<Posts> bestPage = postRepository.findPostsOrderByComments(getPaging(offset, limit));
       postResponse.setCount(bestPage.getTotalElements());
       postResponse.setPosts(toPostDto(bestPage));
