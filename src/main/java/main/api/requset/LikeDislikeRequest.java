@@ -10,6 +10,6 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class LikeDislikeRequest {
 
-  @JsonProperty("post_id")
-  private int postId;
+    @JsonProperty("post_id")
+    private int postId;
 }

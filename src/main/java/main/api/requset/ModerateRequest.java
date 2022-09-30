@@ -10,7 +10,9 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class ModerateRequest {
 
-  @JsonProperty("post_id")
-  private int postId;
-  private String decision;
+    @JsonProperty("post_id")
+    private int postId;
+
+    @JsonProperty("decision")
+    private String decision;
 }

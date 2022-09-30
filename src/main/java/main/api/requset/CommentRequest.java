@@ -10,10 +10,12 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class CommentRequest {
 
-  @JsonProperty("parent_id")
-  private int parentId;
-  @JsonProperty("post_id")
-  private int postId;
-  private String text;
+    @JsonProperty("parent_id")
+    private int parentId;
 
+    @JsonProperty("post_id")
+    private int postId;
+
+    @JsonProperty("text")
+    private String text;
 }

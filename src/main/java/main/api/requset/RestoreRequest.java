@@ -9,5 +9,5 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class RestoreRequest {
 
-  private String email;
+    private String email;
 }
