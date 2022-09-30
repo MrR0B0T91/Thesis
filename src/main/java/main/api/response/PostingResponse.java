@@ -6,6 +6,7 @@ import main.dto.PostErrorDto;
 @Data
 public class PostingResponse {
 
-  private boolean result;
-  private PostErrorDto errors;
+    private boolean result;
+
+    private PostErrorDto errors;
 }

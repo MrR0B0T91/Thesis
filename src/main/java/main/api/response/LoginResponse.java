@@ -7,7 +7,9 @@ import main.dto.UserLoginDto;
 @Data
 public class LoginResponse {
 
-  private boolean result;
-  @JsonProperty("user")
-  private UserLoginDto userLoginDto;
+    @JsonProperty("result")
+    private boolean result;
+
+    @JsonProperty("user")
+    private UserLoginDto userLoginDto;
 }

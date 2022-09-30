@@ -6,6 +6,7 @@ import main.dto.UserLoginDto;
 @Data
 public class CheckResponse {
 
-  private boolean result;
-  private UserLoginDto user;
+    private boolean result;
+
+    private UserLoginDto user;
 }

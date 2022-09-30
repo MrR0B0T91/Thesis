@@ -6,6 +6,7 @@ import main.dto.ErrorsDto;
 @Data
 public class RegisterResponse {
 
-  private boolean result;
-  private ErrorsDto errors;
+    private boolean result;
+
+    private ErrorsDto errors;
 }

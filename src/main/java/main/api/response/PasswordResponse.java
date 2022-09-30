@@ -6,6 +6,7 @@ import main.dto.PasswordErrorsDto;
 @Data
 public class PasswordResponse {
 
-  private boolean result;
-  private PasswordErrorsDto errors;
+    private boolean result;
+
+    private PasswordErrorsDto errors;
 }

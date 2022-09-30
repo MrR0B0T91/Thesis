@@ -5,5 +5,5 @@ import lombok.Data;
 @Data
 public class GeneralResponse {
 
-  private boolean result;
+    private boolean result;
 }
