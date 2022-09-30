@@ -1,6 +1,7 @@
 package main.controller;
 
 import java.security.Principal;
+
 import main.api.requset.LikeDislikeRequest;
 import main.api.requset.PostRequest;
 import main.api.response.GeneralResponse;
@@ -22,93 +23,99 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/api/post")
 public class ApiPostController {
 
-  private final PostService postService;
+    private final PostService postService;
 
-  public ApiPostController(PostService postService) {
-    this.postService = postService;
-  }
+    public ApiPostController(PostService postService) {
+        this.postService = postService;
+    }
 
-  @GetMapping
-  public PostResponse posts(
-      @RequestParam(value = "offset", defaultValue = "0") int offset,
-      @RequestParam(value = "limit", defaultValue = "10") int limit,
-      @RequestParam(value = "mode", defaultValue = "recent") String mode) {
+    @GetMapping
+    public PostResponse posts(
+            @RequestParam(value = "offset", defaultValue = "0") int offset,
+            @RequestParam(value = "limit", defaultValue = "10") int limit,
+            @RequestParam(value = "mode", defaultValue = "recent") String mode) {
 
-    return postService.getPosts(offset, limit, mode);
-  }
+        return postService.getPosts(offset, limit, mode);
+    }
 
-  @GetMapping("/search")
-  public PostResponse postSearch(
-      @RequestParam(value = "offset", defaultValue = "0") int offset,
-      @RequestParam(value = "limit", defaultValue = "10") int limit,
-      @RequestParam(value = "query", defaultValue = "") String query) {
+    @GetMapping("/search")
+    public PostResponse postSearch(
+            @RequestParam(value = "offset", defaultValue = "0") int offset,
+            @RequestParam(value = "limit", defaultValue = "10") int limit,
+            @RequestParam(value = "query", defaultValue = "") String query) {
 
-    return postService.getPost(offset, limit, query);
-  }
+        return postService.getPost(offset, limit, query);
+    }
 
-  @GetMapping("/byDate")
-  public PostResponse searchByDate(@RequestParam(value = "offset", defaultValue = "0") int offset,
-      @RequestParam(value = "limit", defaultValue = "10") int limit,
-      @RequestParam(value = "date") String date) {
+    @GetMapping("/byDate")
+    public PostResponse searchByDate(@RequestParam(value = "offset", defaultValue = "0") int offset,
+                                     @RequestParam(value = "limit", defaultValue = "10") int limit,
+                                     @RequestParam(value = "date") String date) {
 
-    return postService.getPostsByDate(offset, limit, date);
-  }
+        return postService.getPostsByDate(offset, limit, date);
+    }
 
-  @GetMapping("/byTag")
-  public PostResponse searchByTag(@RequestParam(value = "offset", defaultValue = "0") int offset,
-      @RequestParam(value = "limit", defaultValue = "10") int limit,
-      @RequestParam(value = "tag") String tag) {
+    @GetMapping("/byTag")
+    public PostResponse searchByTag(@RequestParam(value = "offset", defaultValue = "0") int offset,
+                                    @RequestParam(value = "limit", defaultValue = "10") int limit,
+                                    @RequestParam(value = "tag") String tag) {
 
-    return postService.getPostsByTag(offset, limit, tag);
-  }
+        return postService.getPostsByTag(offset, limit, tag);
+    }
 
-  @GetMapping("/{id}")
-  public PostByIdResponse getPostById(@PathVariable int id) {
+    @GetMapping("/{id}")
+    public PostByIdResponse getPostById(@PathVariable int id) {
 
-    return postService.getPostById(id);
-  }
+        return postService.getPostById(id);
+    }
 
-  @GetMapping("/moderation")
-  @PreAuthorize("hasAuthority('user:moderate')")
-  public PostResponse moderationPosts(
-      @RequestParam(value = "offset", defaultValue = "0") int offset,
-      @RequestParam(value = "limit", defaultValue = "10") int limit,
-      @RequestParam(value = "status") String status) {
-    return postService.getModerationPosts(offset, limit, status);
-  }
+    @GetMapping("/moderation")
+    @PreAuthorize("hasAuthority('user:moderate')")
+    public PostResponse moderationPosts(
+            @RequestParam(value = "offset", defaultValue = "0") int offset,
+            @RequestParam(value = "limit", defaultValue = "10") int limit,
+            @RequestParam(value = "status") String status) {
 
-  @GetMapping("/my")
-  @PreAuthorize("hasAuthority('user:write')")
-  public PostResponse myPosts(@RequestParam(value = "offset", defaultValue = "0") int offset,
-      @RequestParam(value = "limit", defaultValue = "10") int limit,
-      @RequestParam(value = "status") String status) {
-    return postService.getMyPosts(offset, limit, status);
-  }
+        return postService.getModerationPosts(offset, limit, status);
+    }
 
-  @PostMapping
-  @PreAuthorize("hasAuthority('user:write')")
-  public PostingResponse tweetPost(@RequestBody PostRequest postRequest, Principal principal) {
-    return postService.makePost(postRequest, principal);
-  }
+    @GetMapping("/my")
+    @PreAuthorize("hasAuthority('user:write')")
+    public PostResponse myPosts(@RequestParam(value = "offset", defaultValue = "0") int offset,
+                                @RequestParam(value = "limit", defaultValue = "10") int limit,
+                                @RequestParam(value = "status") String status) {
 
-  @PutMapping("/{id}")
-  @PreAuthorize("hasAuthority('user:write')")
-  public PostingResponse updatePost(@PathVariable int id,
-      @RequestBody PostRequest postRequest, Principal principal) {
-    return postService.updatePost(id, postRequest, principal);
-  }
+        return postService.getMyPosts(offset, limit, status);
+    }
 
-  @PostMapping("/like")
-  @PreAuthorize("hasAuthority('user:write')")
-  public GeneralResponse like(@RequestBody LikeDislikeRequest likeDislikeRequest,
-      Principal principal) {
-    return postService.like(likeDislikeRequest, principal);
-  }
+    @PostMapping
+    @PreAuthorize("hasAuthority('user:write')")
+    public PostingResponse tweetPost(@RequestBody PostRequest postRequest, Principal principal) {
 
-  @PostMapping("/dislike")
-  @PreAuthorize("hasAuthority('user:write')")
-  public GeneralResponse dislike(@RequestBody LikeDislikeRequest likeDislikeRequest,
-      Principal principal) {
-    return postService.dislike(likeDislikeRequest, principal);
-  }
+        return postService.makePost(postRequest, principal);
+    }
+
+    @PutMapping("/{id}")
+    @PreAuthorize("hasAuthority('user:write')")
+    public PostingResponse updatePost(@PathVariable int id,
+                                      @RequestBody PostRequest postRequest, Principal principal) {
+
+        return postService.updatePost(id, postRequest, principal);
+    }
+
+    @PostMapping("/like")
+    @PreAuthorize("hasAuthority('user:write')")
+    public GeneralResponse like(@RequestBody LikeDislikeRequest likeDislikeRequest,
+                                Principal principal) {
+
+        return postService.like(likeDislikeRequest, principal);
+    }
+
+    @PostMapping("/dislike")
+    @PreAuthorize("hasAuthority('user:write')")
+    public GeneralResponse dislike(@RequestBody LikeDislikeRequest likeDislikeRequest,
+                                   Principal principal) {
+
+        return postService.dislike(likeDislikeRequest, principal);
+    }
 }

@@ -29,62 +29,65 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/api/auth")
 public class ApiAuthController {
 
-  private final CheckService checkService;
-  private final CaptchaService captchaService;
-  private final LoginService loginService;
-  private final RegisterService registerService;
-  private final EmailService emailService;
+    private final CheckService checkService;
+    private final CaptchaService captchaService;
+    private final LoginService loginService;
+    private final RegisterService registerService;
+    private final EmailService emailService;
 
-  @Autowired
-  public ApiAuthController(CheckService checkService, CaptchaService captchaService,
-      LoginService loginService, RegisterService registerService,
-      EmailService emailService) {
-    this.checkService = checkService;
-    this.captchaService = captchaService;
-    this.loginService = loginService;
-    this.registerService = registerService;
-    this.emailService = emailService;
-  }
+    @Autowired
+    public ApiAuthController(CheckService checkService, CaptchaService captchaService,
+                             LoginService loginService, RegisterService registerService,
+                             EmailService emailService) {
+        this.checkService = checkService;
+        this.captchaService = captchaService;
+        this.loginService = loginService;
+        this.registerService = registerService;
+        this.emailService = emailService;
+    }
 
-  @GetMapping("/check")
-  public CheckResponse check() {
-    return checkService.getResult();
-  }
+    @GetMapping("/check")
+    public CheckResponse check() {
+        return checkService.getResult();
+    }
 
-  @GetMapping("/captcha")
-  public CaptchaResponse captcha() {
-    return captchaService.getCaptcha();
-  }
+    @GetMapping("/captcha")
+    public CaptchaResponse captcha() {
+        return captchaService.getCaptcha();
+    }
 
-  @PostMapping("/register")
-  public RegisterResponse register(@RequestBody RegisterRequest registerRequest) {
+    @PostMapping("/register")
+    public RegisterResponse register(@RequestBody RegisterRequest registerRequest) {
 
-    return registerService.register(registerRequest);
-  }
+        return registerService.register(registerRequest);
+    }
 
-  @PostMapping("/login")
-  public LoginResponse login(@RequestBody LoginRequest loginRequest) {
+    @PostMapping("/login")
+    public LoginResponse login(@RequestBody LoginRequest loginRequest) {
 
-    return loginService.loginUser(loginRequest);
-  }
+        return loginService.loginUser(loginRequest);
+    }
 
-  @GetMapping("/logout")
-  @PreAuthorize("hasAuthority('user:write')")
-  public LogoutResponse logout() {
-    LogoutResponse logoutResponse = new LogoutResponse();
-    logoutResponse.setResult(true);
-    SecurityContextHolder.getContext().setAuthentication(null);
+    @GetMapping("/logout")
+    @PreAuthorize("hasAuthority('user:write')")
+    public LogoutResponse logout() {
 
-    return logoutResponse;
-  }
+        LogoutResponse logoutResponse = new LogoutResponse();
+        logoutResponse.setResult(true);
+        SecurityContextHolder.getContext().setAuthentication(null);
 
-  @PostMapping("/restore")
-  public GeneralResponse restore(@RequestBody RestoreRequest restoreRequest) {
-    return emailService.restorePassword(restoreRequest);
-  }
+        return logoutResponse;
+    }
 
-  @PostMapping("/password")
-  public PasswordResponse password(@RequestBody PasswordRequest passwordRequest) {
-    return emailService.password(passwordRequest);
-  }
+    @PostMapping("/restore")
+    public GeneralResponse restore(@RequestBody RestoreRequest restoreRequest) {
+
+        return emailService.restorePassword(restoreRequest);
+    }
+
+    @PostMapping("/password")
+    public PasswordResponse password(@RequestBody PasswordRequest passwordRequest) {
+
+        return emailService.password(passwordRequest);
+    }
 }

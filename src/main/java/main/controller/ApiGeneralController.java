@@ -2,6 +2,7 @@ package main.controller;
 
 import java.security.Principal;
 import javax.servlet.http.HttpServletRequest;
+
 import main.api.requset.CommentRequest;
 import main.api.requset.ModerateRequest;
 import main.api.requset.ProfileRequest;
@@ -33,92 +34,98 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/api")
 public class ApiGeneralController {
 
-  private final InitResponse initResponse;
-  private final SettingsService settingsService;
-  private final TagService tagService;
-  private final PostService postService;
-  private final StatisticService statisticService;
-  private final ProfileService profileService;
+    private final InitResponse initResponse;
+    private final SettingsService settingsService;
+    private final TagService tagService;
+    private final PostService postService;
+    private final StatisticService statisticService;
+    private final ProfileService profileService;
 
-  public ApiGeneralController(
-      InitResponse initResponse, SettingsService settingsService, TagService tagService,
-      PostService postService, StatisticService statisticService,
-      ProfileService profileService) {
-    this.initResponse = initResponse;
-    this.settingsService = settingsService;
-    this.tagService = tagService;
-    this.postService = postService;
-    this.statisticService = statisticService;
-    this.profileService = profileService;
-  }
+    public ApiGeneralController(
+            InitResponse initResponse, SettingsService settingsService, TagService tagService,
+            PostService postService, StatisticService statisticService,
+            ProfileService profileService) {
+        this.initResponse = initResponse;
+        this.settingsService = settingsService;
+        this.tagService = tagService;
+        this.postService = postService;
+        this.statisticService = statisticService;
+        this.profileService = profileService;
+    }
 
-  @GetMapping("/init")
-  public InitResponse init() {
-    return initResponse;
-  }
+    @GetMapping("/init")
+    public InitResponse init() {
+        return initResponse;
+    }
 
-  @GetMapping("/settings")
-  public SettingsResponse settings() {
-    return settingsService.getGlobalSettings();
-  }
+    @GetMapping("/settings")
+    public SettingsResponse settings() {
+        return settingsService.getGlobalSettings();
+    }
 
-  @PutMapping("/settings")
-  @PreAuthorize("hasAuthority('user:moderate')")
-  public SettingsResponse changeSettings(@RequestBody SettingsRequest settingsRequest) {
-    return settingsService.changeSettings(settingsRequest);
-  }
+    @PutMapping("/settings")
+    @PreAuthorize("hasAuthority('user:moderate')")
+    public SettingsResponse changeSettings(@RequestBody SettingsRequest settingsRequest) {
 
-  @GetMapping("/tag")
-  public TagResponse tags(
-      @RequestParam(value = "query", defaultValue = "") String name) {
-    return tagService.getTags();
-  }
+        return settingsService.changeSettings(settingsRequest);
+    }
 
-  @GetMapping("/calendar")
-  public CalendarResponse postsByYear(
-      @RequestParam(value = "year", defaultValue = "") String year) {
-    return postService.getPostsByYear(year);
-  }
+    @GetMapping("/tag")
+    public TagResponse tags(
+            @RequestParam(value = "query", defaultValue = "") String name) {
 
-  @PostMapping("/comment")
-  @PreAuthorize("hasAuthority('user:write')")
-  public CommentResponse comment(@RequestBody CommentRequest commentRequest, Principal principal) {
-    return postService.postComment(commentRequest, principal);
-  }
+        return tagService.getTags();
+    }
 
-  @GetMapping("/statistics/my")
-  @PreAuthorize("hasAuthority('user:write')")
-  public StatisticsResponse myStatistics() {
-    return statisticService.getMyStatistics();
-  }
+    @GetMapping("/calendar")
+    public CalendarResponse postsByYear(
+            @RequestParam(value = "year", defaultValue = "") String year) {
 
-  @GetMapping("/statistics/all")
-  public StatisticsResponse allStatistics() {
-    return statisticService.getAllStatistics();
-  }
+        return postService.getPostsByYear(year);
+    }
 
-  @PostMapping(value = "/profile/my", consumes = {"multipart/form-data"})
-  @PreAuthorize("hasAuthority('user:write')")
-  public ProfileResponse multipartProfile(@RequestPart("photo") byte[] photo,
-      @RequestParam(value = "name") String name,
-      @RequestParam(value = "email") String email,
-      @RequestParam(value = "removePhoto", defaultValue = "0") int removePhoto,
-      @RequestParam(value = "password", required = false) String password,
-      HttpServletRequest httpServletRequest, Principal principal) {
-    return profileService
-        .multipartProfile(photo, name, email, removePhoto, password, httpServletRequest, principal);
-  }
+    @PostMapping("/comment")
+    @PreAuthorize("hasAuthority('user:write')")
+    public CommentResponse comment(@RequestBody CommentRequest commentRequest, Principal principal) {
 
-  @PostMapping(value = "/profile/my", consumes = {"application/json"})
-  @PreAuthorize("hasAuthority('user:write')")
-  public ProfileResponse jsonProfile(@RequestBody ProfileRequest profileRequest) {
-    return profileService.jsonProfile(profileRequest);
-  }
+        return postService.postComment(commentRequest, principal);
+    }
 
-  @PostMapping("/moderation")
-  @PreAuthorize("hasAuthority('user:moderate')")
-  public GeneralResponse moderatePost(@RequestBody ModerateRequest moderateRequest,
-      Principal principal) {
-    return postService.moderatePost(moderateRequest, principal);
-  }
+    @GetMapping("/statistics/my")
+    @PreAuthorize("hasAuthority('user:write')")
+    public StatisticsResponse myStatistics() {
+        return statisticService.getMyStatistics();
+    }
+
+    @GetMapping("/statistics/all")
+    public StatisticsResponse allStatistics() {
+        return statisticService.getAllStatistics();
+    }
+
+    @PostMapping(value = "/profile/my", consumes = {"multipart/form-data"})
+    @PreAuthorize("hasAuthority('user:write')")
+    public ProfileResponse multipartProfile(@RequestPart("photo") byte[] photo,
+                                            @RequestParam(value = "name") String name,
+                                            @RequestParam(value = "email") String email,
+                                            @RequestParam(value = "removePhoto", defaultValue = "0") int removePhoto,
+                                            @RequestParam(value = "password", required = false) String password,
+                                            HttpServletRequest httpServletRequest, Principal principal) {
+        return profileService
+                .multipartProfile(photo, name, email, removePhoto, password, httpServletRequest, principal);
+    }
+
+    @PostMapping(value = "/profile/my", consumes = {"application/json"})
+    @PreAuthorize("hasAuthority('user:write')")
+    public ProfileResponse jsonProfile(@RequestBody ProfileRequest profileRequest) {
+
+        return profileService.jsonProfile(profileRequest);
+    }
+
+    @PostMapping("/moderation")
+    @PreAuthorize("hasAuthority('user:moderate')")
+    public GeneralResponse moderatePost(@RequestBody ModerateRequest moderateRequest,
+                                        Principal principal) {
+
+        return postService.moderatePost(moderateRequest, principal);
+    }
 }
