@@ -6,6 +6,7 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
+
 import lombok.Data;
 
 @Data
@@ -13,13 +14,13 @@ import lombok.Data;
 @Table(name = "tag2post")
 public class Tag2Post {
 
-  @Id
-  @GeneratedValue(strategy = GenerationType.IDENTITY)
-  private int id;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private int id;
 
-  @Column(name = "post_id", nullable = false, columnDefinition = "INT")
-  private int postId;
+    @Column(name = "post_id", nullable = false, columnDefinition = "INT")
+    private int postId;
 
-  @Column(name = "tag_id", nullable = false, columnDefinition = "INT")
-  private int tagId;
+    @Column(name = "tag_id", nullable = false, columnDefinition = "INT")
+    private int tagId;
 }

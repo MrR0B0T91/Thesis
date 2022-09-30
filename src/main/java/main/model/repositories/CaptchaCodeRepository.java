@@ -9,9 +9,9 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface CaptchaCodeRepository extends JpaRepository<CaptchaCodes, Integer> {
 
-  @Query("SELECT c "
-      + "FROM CaptchaCodes c "
-      + "WHERE c.secretCode = :secret")
-  CaptchaCodes findBySecret(@Param("secret") String secret);
+    @Query("SELECT c "
+            + "FROM CaptchaCodes c "
+            + "WHERE c.secretCode = :secret")
+    CaptchaCodes findBySecret(@Param("secret") String secret);
 
 }

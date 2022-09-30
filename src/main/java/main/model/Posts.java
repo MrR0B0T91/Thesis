@@ -17,6 +17,7 @@ import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
+
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import main.model.enums.ModerationStatus;
@@ -27,46 +28,46 @@ import main.model.enums.ModerationStatus;
 @Table(name = "posts")
 public class Posts {
 
-  @Id
-  @GeneratedValue(strategy = GenerationType.IDENTITY)
-  private int id;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private int id;
 
-  @Column(name = "is_active", nullable = false, columnDefinition = "TINYINT")
-  private int isActive;
+    @Column(name = "is_active", nullable = false, columnDefinition = "TINYINT")
+    private int isActive;
 
-  @Enumerated(EnumType.STRING)
-  @Column(columnDefinition = "enum")
-  private ModerationStatus moderationStatus = ModerationStatus.NEW;
+    @Enumerated(EnumType.STRING)
+    @Column(columnDefinition = "enum")
+    private ModerationStatus moderationStatus = ModerationStatus.NEW;
 
-  @Column(name = "moderator_id", columnDefinition = "INT")
-  private Integer moderatorId;
+    @Column(name = "moderator_id", columnDefinition = "INT")
+    private Integer moderatorId;
 
-  @ManyToOne
-  @JoinColumn(name = "user_id", nullable = false)
-  private User user;
+    @ManyToOne
+    @JoinColumn(name = "user_id", nullable = false)
+    private User user;
 
-  @Column(nullable = false, columnDefinition = "DATETIME")
-  private Calendar time;
+    @Column(nullable = false, columnDefinition = "DATETIME")
+    private Calendar time;
 
-  @Column(nullable = false, columnDefinition = "VARCHAR(255)")
-  private String title;
+    @Column(nullable = false, columnDefinition = "VARCHAR(255)")
+    private String title;
 
-  @Column(nullable = false, columnDefinition = "TEXT")
-  private String text;
+    @Column(nullable = false, columnDefinition = "TEXT")
+    private String text;
 
-  @Column(name = "view_count", nullable = false, columnDefinition = "INT")
-  private int viewCount;
+    @Column(name = "view_count", nullable = false, columnDefinition = "INT")
+    private int viewCount;
 
-  @OneToMany(mappedBy = "post", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-  private List<PostVotes> postVoteList;
+    @OneToMany(mappedBy = "post", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    private List<PostVotes> postVoteList;
 
-  @OneToMany(mappedBy = "posts", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-  private List<PostComments> postCommentsList;
+    @OneToMany(mappedBy = "posts", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    private List<PostComments> postCommentsList;
 
-  @ManyToMany(cascade = CascadeType.ALL)
-  @JoinTable(
-      name = "tag2post",
-      joinColumns = {@JoinColumn(name = "post_id")},
-      inverseJoinColumns = {@JoinColumn(name = "tag_id")})
-  private List<Tags> tagsList;
+    @ManyToMany(cascade = CascadeType.ALL)
+    @JoinTable(
+            name = "tag2post",
+            joinColumns = {@JoinColumn(name = "post_id")},
+            inverseJoinColumns = {@JoinColumn(name = "tag_id")})
+    private List<Tags> tagsList;
 }

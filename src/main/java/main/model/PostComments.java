@@ -9,6 +9,7 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
+
 import lombok.Data;
 
 @Data
@@ -16,24 +17,24 @@ import lombok.Data;
 @Table(name = "post_comments")
 public class PostComments {
 
-  @Id
-  @GeneratedValue(strategy = GenerationType.IDENTITY)
-  private int id;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private int id;
 
-  @Column(name = "parent_id", columnDefinition = "INT")
-  private Integer parentId;
+    @Column(name = "parent_id", columnDefinition = "INT")
+    private Integer parentId;
 
-  @ManyToOne
-  @JoinColumn(name = "user_id", nullable = false)
-  private User user;
+    @ManyToOne
+    @JoinColumn(name = "user_id", nullable = false)
+    private User user;
 
-  @ManyToOne
-  @JoinColumn(name = "post_id", nullable = false)
-  private Posts posts;
+    @ManyToOne
+    @JoinColumn(name = "post_id", nullable = false)
+    private Posts posts;
 
-  @Column(nullable = false, columnDefinition = "DATETIME")
-  private Date time;
+    @Column(nullable = false, columnDefinition = "DATETIME")
+    private Date time;
 
-  @Column(nullable = false, columnDefinition = "TEXT")
-  private String text;
+    @Column(nullable = false, columnDefinition = "TEXT")
+    private String text;
 }

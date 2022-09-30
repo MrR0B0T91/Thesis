@@ -9,6 +9,7 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
+
 import lombok.Data;
 
 @Data
@@ -16,20 +17,20 @@ import lombok.Data;
 @Table(name = "post_votes")
 public class PostVotes {
 
-  @Id
-  @GeneratedValue(strategy = GenerationType.IDENTITY)
-  private int id;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private int id;
 
-  @Column(name = "user_id", nullable = false, columnDefinition = "INT")
-  private int userId;
+    @Column(name = "user_id", nullable = false, columnDefinition = "INT")
+    private int userId;
 
-  @ManyToOne
-  @JoinColumn(name = "post_id", nullable = false)
-  private Posts post;
+    @ManyToOne
+    @JoinColumn(name = "post_id", nullable = false)
+    private Posts post;
 
-  @Column(nullable = false, columnDefinition = "DATETIME")
-  private Date time;
+    @Column(nullable = false, columnDefinition = "DATETIME")
+    private Date time;
 
-  @Column(nullable = false, columnDefinition = "TINYINT")
-  private int value;
+    @Column(nullable = false, columnDefinition = "TINYINT")
+    private int value;
 }
