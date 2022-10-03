@@ -4,6 +4,7 @@ import java.util.Date;
 import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
 import main.api.requset.RegisterRequest;
 import main.dto.ErrorsDto;
 import main.api.response.RegisterResponse;
@@ -19,75 +20,75 @@ import org.springframework.stereotype.Service;
 @Service
 public class RegisterService {
 
-  private final UserRepository userRepository;
-  private final CaptchaCodeRepository captchaCodeRepository;
+    private final UserRepository userRepository;
+    private final CaptchaCodeRepository captchaCodeRepository;
 
-  @Autowired
-  public RegisterService(UserRepository userRepository,
-      CaptchaCodeRepository captchaCodeRepository) {
-    this.userRepository = userRepository;
-    this.captchaCodeRepository = captchaCodeRepository;
-  }
-
-  public RegisterResponse register(RegisterRequest registerRequest) {
-
-    ErrorsDto errorsDto = new ErrorsDto();
-    RegisterResponse registerResponse = new RegisterResponse();
-    PasswordEncoder passwordEncoder = new BCryptPasswordEncoder(12);
-
-    CaptchaCodes repoCaptcha = captchaCodeRepository
-        .findBySecret(registerRequest.getCaptchaSecret());
-
-    boolean dataCorrect = (checkCaptcha(registerRequest.getCaptcha(), repoCaptcha) && (!checkEmail(
-        registerRequest.getEmail())));
-
-    if (dataCorrect) {
-      User user = new User();
-      String encodedPassword = passwordEncoder.encode(registerRequest.getPassword());
-
-      user.setEmail(registerRequest.getEmail());
-      user.setName(registerRequest.getName());
-      user.setPassword(encodedPassword);
-      user.setIsModerator(0);
-      user.setRegTime(new Date());
-
-      userRepository.save(user);
-      registerResponse.setResult(true);
-
-    } else {
-      if (checkEmail(registerRequest.getEmail())) {
-        errorsDto.setEmail("Этот email уже зарегестрирован");
-      }
-      if (!checkCaptcha(registerRequest.getCaptcha(), repoCaptcha)) {
-        errorsDto.setCaptcha("Код с картинки введен неверно");
-      }
-      if (!checkName(registerRequest.getName())) {
-        errorsDto.setName("Имя указано неверно");
-      }
-      registerResponse.setResult(false);
-      registerResponse.setErrors(errorsDto);
+    @Autowired
+    public RegisterService(UserRepository userRepository,
+                           CaptchaCodeRepository captchaCodeRepository) {
+        this.userRepository = userRepository;
+        this.captchaCodeRepository = captchaCodeRepository;
     }
-    return registerResponse;
-  }
 
-  private boolean checkCaptcha(String captcha, CaptchaCodes repoCaptcha) {
-    boolean check = true;
-    boolean captchaCorrect = captcha.equals(repoCaptcha.getCode());
-    if (!captchaCorrect) {
-      check = false;
+    public RegisterResponse register(RegisterRequest registerRequest) {
+
+        ErrorsDto errorsDto = new ErrorsDto();
+        RegisterResponse registerResponse = new RegisterResponse();
+        PasswordEncoder passwordEncoder = new BCryptPasswordEncoder(12);
+
+        CaptchaCodes repoCaptcha = captchaCodeRepository
+                .findBySecret(registerRequest.getCaptchaSecret());
+
+        boolean dataCorrect = (checkCaptcha(registerRequest.getCaptcha(), repoCaptcha) && (!checkEmail(
+                registerRequest.getEmail())));
+
+        if (dataCorrect) {
+            User user = new User();
+            String encodedPassword = passwordEncoder.encode(registerRequest.getPassword());
+
+            user.setEmail(registerRequest.getEmail());
+            user.setName(registerRequest.getName());
+            user.setPassword(encodedPassword);
+            user.setIsModerator(0);
+            user.setRegTime(new Date());
+
+            userRepository.save(user);
+            registerResponse.setResult(true);
+
+        } else {
+            if (checkEmail(registerRequest.getEmail())) {
+                errorsDto.setEmail("Этот email уже зарегестрирован");
+            }
+            if (!checkCaptcha(registerRequest.getCaptcha(), repoCaptcha)) {
+                errorsDto.setCaptcha("Код с картинки введен неверно");
+            }
+            if (!checkName(registerRequest.getName())) {
+                errorsDto.setName("Имя указано неверно");
+            }
+            registerResponse.setResult(false);
+            registerResponse.setErrors(errorsDto);
+        }
+        return registerResponse;
     }
-    return check;
-  }
 
-  private boolean checkEmail(String email) {
-    Optional<User> repoUser = userRepository.findUserByEmail(email);
-    return repoUser.map(user -> user.getEmail().equals(email)).orElse(false);
-  }
+    private boolean checkCaptcha(String captcha, CaptchaCodes repoCaptcha) {
+        boolean check = true;
+        boolean captchaCorrect = captcha.equals(repoCaptcha.getCode());
+        if (!captchaCorrect) {
+            check = false;
+        }
+        return check;
+    }
 
-  private boolean checkName(String name) {
-    Pattern pattern = Pattern.compile("^[\\p{L} .'-]+$");
-    Matcher matcher = pattern.matcher(name);
+    private boolean checkEmail(String email) {
+        Optional<User> repoUser = userRepository.findUserByEmail(email);
+        return repoUser.map(user -> user.getEmail().equals(email)).orElse(false);
+    }
 
-    return matcher.matches();
-  }
+    private boolean checkName(String name) {
+        Pattern pattern = Pattern.compile("^[\\p{L} .'-]+$");
+        Matcher matcher = pattern.matcher(name);
+
+        return matcher.matches();
+    }
 }
